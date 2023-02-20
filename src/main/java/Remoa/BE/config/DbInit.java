@@ -50,11 +50,11 @@ public class DbInit {
             //do nothing
             log.info("==========Categories are already set==========");
         } else {
-            Category idea = new Category("idea");
-            Category marketing = new Category("marketing");
-            Category design = new Category("design");
-            Category video = new Category("video");
-            Category etc = new Category("etc");
+            Category idea = new Category("idea"); //기획 아이디어
+            Category marketing = new Category("marketing"); //광고 마케팅
+            Category design = new Category("design"); //디자인, 사진
+            Category video = new Category("video"); //영상
+            Category etc = new Category("etc"); //기타 아이디어
             this.categoryService.persistCategory(idea, marketing, design, video, etc);
             log.info("==========Setting Categories completely==========");
         }
