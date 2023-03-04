@@ -93,12 +93,17 @@ public class KakaoController {
     @PostMapping("/signup/kakao")
     public ResponseEntity<Object> signupKakaoMember(@RequestBody @Validated ReqSignupDto form, HttpServletRequest request) {
 
-        Boolean nicknameDuplicate = memberService.isNicknameDuplicate(form.getNickname()); //비어있으면(닉네임  false
-
         Member member = new Member();
+
+        //닉네임 사용 가능하면 그대로 진행, 불가능하면 임의 닉네임 "유저-{kakaoId}로 지정.
+        Boolean nicknameDuplicate = memberService.isNicknameDuplicate(form.getNickname());
+        if (nicknameDuplicate) { //특수문자는 닉네임에 사용할 수 없으나 임의로 지정하는 닉네임에는 사용 가능하게 해서 또 다른 중복 문제 없게끔.
+            member.setNickname("유저-" + form.getKakaoId());
+        } else {
+            member.setNickname(form.getNickname());
+        }
         member.setKakaoId(form.getKakaoId());
         member.setEmail(form.getEmail());
-        member.setNickname(form.getNickname());
         member.setProfileImage(form.getProfileImage());
         member.setTermConsent(form.getTermConsent());
 
