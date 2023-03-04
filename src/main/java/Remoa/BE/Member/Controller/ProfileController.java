@@ -46,7 +46,7 @@ public class ProfileController {
     // RESTful API에서 PUT 매핑은 수정할 리소스를 명확하게 지정해야 하는데 이 경우에는 URL에 리소스 ID를 명시하는 것이 일반적이다.
     // 그런데 우리는 수정할 사용자의 정보를 모두 입력받아 수정하는 형태이기 때문에
     // URL에 리소스 ID를 명시할 필요가 없어서 PUT대신 POST 매핑을 사용하였습니다.
-    @PostMapping("/user")
+    @PutMapping("/user")
     public ResponseEntity<Object> editProfile(@RequestBody EditProfileForm form, HttpServletRequest request) {
         HttpSession session = request.getSession();
         Member loginMember = (Member) session.getAttribute("loginMember");
@@ -70,6 +70,9 @@ public class ProfileController {
         return successResponse(CustomMessage.OK, "redirect:/user");
     }
 
+    /**
+     * 닉네임이 변경되지 않아 기존의 닉네임을 다시 사용했을 때 닉네임 중복 체크 로직이 동작하지 않게끔.
+     */
     private boolean isNicknameChanged(EditProfileForm form, Member loginMember) {
         return !(form.getNickname().equals(loginMember.getNickname()));
     }

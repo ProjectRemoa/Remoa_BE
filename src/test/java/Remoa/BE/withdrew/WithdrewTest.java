@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -83,7 +84,9 @@ public class WithdrewTest {
 
         em.flush();
 
-        Member findMember = memberRepository.findOne(testMemberId);
+        Optional<Member> member = memberRepository.findOne(testMemberId);
+        Member findMember = member.get();
+
 
         //then
         assertEquals("회원을 탈퇴하면 해당 멤버 엔티티의 deleted 필드는 true이다.", true, findMember.getDeleted());
