@@ -93,6 +93,8 @@ public class KakaoController {
     @PostMapping("/signup/kakao")
     public ResponseEntity<Object> signupKakaoMember(@RequestBody @Validated ReqSignupDto form, HttpServletRequest request) {
 
+        Boolean nicknameDuplicate = memberService.isNicknameDuplicate(form.getNickname()); //비어있으면(닉네임  false
+
         Member member = new Member();
         member.setKakaoId(form.getKakaoId());
         member.setEmail(form.getEmail());
