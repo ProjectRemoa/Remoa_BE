@@ -56,7 +56,8 @@ public class ProfileController {
             return failResponse(CustomMessage.VALIDATED, "로그인하지 않은 회원입니다. <redirect:/login/kakao> 로 redirect");
         }
 
-        if (memberService.isNicknameDuplicate(form.getNickname())) {
+        if (memberService.isNicknameDuplicate(form.getNickname()) &&
+                isNicknameChanged(form, loginMember)) {
             return failResponse(CustomMessage.VALIDATED, "닉네임이 중복됩니다.");
         }
 
@@ -67,6 +68,10 @@ public class ProfileController {
 
         // 수정이 완료되면 프로필 페이지로 이동
         return successResponse(CustomMessage.OK, "redirect:/user");
+    }
+
+    private boolean isNicknameChanged(EditProfileForm form, Member loginMember) {
+        return !(form.getNickname().equals(loginMember.getNickname()));
     }
 
     /**

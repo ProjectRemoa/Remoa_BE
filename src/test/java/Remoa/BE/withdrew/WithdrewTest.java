@@ -3,7 +3,7 @@ package Remoa.BE.withdrew;
 
 import Remoa.BE.Member.Domain.Member;
 import Remoa.BE.Member.Repository.MemberRepository;
-import Remoa.BE.Member.Service.SignupService;
+import Remoa.BE.Member.Service.MemberService;
 import Remoa.BE.Member.Service.WithdrewService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 public class WithdrewTest {
 
     @Autowired
-    SignupService signupService;
+    MemberService memberService;
 
     @Autowired
     MemberRepository memberRepository;
@@ -46,7 +46,7 @@ public class WithdrewTest {
     public void 회원을_탈퇴하면_멤버테이블의_deleted_컬럼이_true로_바뀐다() throws Exception {
         //given
         Member testMember = createMember();
-        signupService.join(testMember);
+        memberService.join(testMember);
 
         em.flush();
 
@@ -72,7 +72,7 @@ public class WithdrewTest {
     public void 탈퇴한_멤버_엔티티의_deleted_필드는_true이다() throws Exception {
         //given
         Member testMember = createMember();
-        signupService.join(testMember);
+        memberService.join(testMember);
 
         em.flush();
 
