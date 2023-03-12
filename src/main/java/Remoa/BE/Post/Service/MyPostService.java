@@ -25,19 +25,23 @@ public class MyPostService {
     public List<Post> showOnesPosts(Member member, Integer pageNumber) {
         List<Post> allPosts = postRepository.findByMember(member);
 
-        Collections.sort(allPosts, new Comparator<Post>() {
-            @Override
-            public int compare(Post post1, Post post2) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                LocalDateTime dateTime1 = LocalDateTime.parse(post1.getPostingTime(), formatter);
-                log.warn("date1 = {}", dateTime1);
-                LocalDateTime dateTime2 = LocalDateTime.parse(post2.getPostingTime(), formatter);
-                log.warn("date1 = {}", dateTime2);
+        Collections.sort(allPosts, (post1, post2) -> {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime dateTime1 = LocalDateTime.parse(post1.getPostingTime(), formatter);
+            log.warn("date1 = {}", dateTime1);
+            LocalDateTime dateTime2 = LocalDateTime.parse(post2.getPostingTime(), formatter);
+            log.warn("date1 = {}", dateTime2);
 
-                if (dateTime1 > dateTime2) {
-                    return -1;
-                }
+            if (dateTime1.isAfter(dateTime2)) {
+                return -1;
+            } else if (dateTime1.isBefore(dateTime2)) {
+                return 1;
+            } else {
+                return 0;
             }
         });
+
+        allPosts.subList(pageNumber * 5, )
+
     }
 }
