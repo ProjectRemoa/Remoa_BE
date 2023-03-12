@@ -40,9 +40,10 @@ public class MyPostController {
 
     /**
      * 내 작업물 목록 페이지
+     * TODO 페이징 기능 구현 : 고려사항 1. 한 페이지에 몇개의 레퍼런스 넣을지, 2. url mapping /user/reference/{page_number} 혹은 query string?
      */
     @GetMapping("/user/reference")
-    public ResponseEntity<Object> myReferences(HttpServletRequest request) {
+    public ResponseEntity<Object> myReferences(HttpServletRequest request, @RequestParam Integer pageNumber) {
 
         if (authorized(request)) {
             Long memberId = getMemberId();
