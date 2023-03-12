@@ -40,7 +40,9 @@ public class MyPostController {
     private final ModelMapper modelMapper = new ModelMapper();
 
     @PostMapping("/reference/{reference_id}/comment")
-    public ResponseEntity<Object> registComment(@RequestParam Map<String, String> comment, @PathVariable("reference_id") Long postId, HttpServletRequest request) {
+    public ResponseEntity<Object> registerComment(@RequestParam Map<String, String> comment,
+                                                @PathVariable("reference_id") Long postId,
+                                                HttpServletRequest request) {
         String myComment = comment.get("comment");
         if (authorized(request)) {
             Long memberId = getMemberId();
@@ -53,6 +55,7 @@ public class MyPostController {
 
     /**
      * 내 작업물 목록 페이지
+     * @return ThumbnailDto -> 레퍼런스 대표 thumbnail 이미지는 uploadFiles.get(0)에 적힌 URI 참고
      */
     @GetMapping("/user/reference")
     public ResponseEntity<Object> myReferences(HttpServletRequest request) {
@@ -88,8 +91,8 @@ public class MyPostController {
                         .map(Post::getMember, ThumbnailReferenceDto::setNickname))
                 .addMappings(mapper -> mapper.using(
                         (Converter<List<UploadFile>, List<String>>) context -> context.getSource().stream()
-                                .map(UploadFile::getStoreFileUrl).collect(Collectors.toList())
-                ).map(Post::getUploadFiles, ThumbnailReferenceDto::setStoreFileUrls));
+                                .map(UploadFile::getStoreFileUrl).collect(Collectors.toList()))
+                        .map(Post::getUploadFiles, ThumbnailReferenceDto::setStoreFileUrls));
     }
 
 }
