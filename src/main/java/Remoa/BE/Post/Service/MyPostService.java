@@ -8,6 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -18,7 +22,22 @@ public class MyPostService {
 
     private final PostRepository postRepository;
 
-    public List<Post> showOnesPosts(Member member) {
-        return postRepository.findByMember(member);
+    public List<Post> showOnesPosts(Member member, Integer pageNumber) {
+        List<Post> allPosts = postRepository.findByMember(member);
+
+        Collections.sort(allPosts, new Comparator<Post>() {
+            @Override
+            public int compare(Post post1, Post post2) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime dateTime1 = LocalDateTime.parse(post1.getPostingTime(), formatter);
+                log.warn("date1 = {}", dateTime1);
+                LocalDateTime dateTime2 = LocalDateTime.parse(post2.getPostingTime(), formatter);
+                log.warn("date1 = {}", dateTime2);
+
+                if (dateTime1 > dateTime2) {
+                    return -1;
+                }
+            }
+        });
     }
 }
