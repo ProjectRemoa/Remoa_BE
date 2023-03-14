@@ -10,8 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -25,7 +23,15 @@ public class MyPostService {
     public List<Post> showOnesPosts(Member member, Integer pageNumber) {
         List<Post> allPosts = postRepository.findByMember(member);
 
-        Collections.sort(allPosts, (post1, post2) -> {
+        int postQuantity = allPosts.size();
+        int remainder = postQuantity % 5;
+        int totalPages = (remainder == 0) ? (postQuantity / 5) : ((postQuantity / 5) + 1);
+
+        if (pageNumber > totalPages) {
+            throw new IllegalArgumentException("페이지가 올바르지 않습니다.");
+        }
+
+        allPosts.sort((post1, post2) -> {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime dateTime1 = LocalDateTime.parse(post1.getPostingTime(), formatter);
             log.warn("date1 = {}", dateTime1);
@@ -41,7 +47,12 @@ public class MyPostService {
             }
         });
 
-        allPosts.subList(pageNumber * 5, )
+        int index = (pageNumber * 4) + pageNumber;
 
+        if (pageNumber == totalPages) {
+            return allPosts.subList(index - 5, postQuantity);
+        }
+        return allPosts.subList(index - 5, index);
     }
+    //TODO 23.03.14 : branch 옮기기 -> 더 나은 방식의 paging 알고리즘 찾아보고 적용, 받은 피드백 목록 구현
 }

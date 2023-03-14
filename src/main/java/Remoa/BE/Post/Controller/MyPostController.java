@@ -41,6 +41,7 @@ public class MyPostController {
     /**
      * 내 작업물 목록 페이지
      * TODO 페이징 기능 구현 : 고려사항 1. 한 페이지에 몇개의 레퍼런스 넣을지, 2. url mapping /user/reference/{page_number} 혹은 query string?
+     * -> 우선 query string으로 구현함.
      */
     @GetMapping("/user/reference")
     public ResponseEntity<Object> myReferences(HttpServletRequest request, @RequestParam Integer pageNumber) {
@@ -49,7 +50,7 @@ public class MyPostController {
             Long memberId = getMemberId();
             Member myMember = memberService.findOne(memberId);
 
-            List<Post> allPosts = myPostService.showOnesPosts(myMember);
+            List<Post> allPosts = myPostService.showOnesPosts(myMember, pageNumber);
             List<ThumbnailReferenceDto> myReferenceList = new ArrayList<>();
 
             // ModelMapper initialize
