@@ -1,4 +1,4 @@
-package Remoa.BE.Web.Comment.Dto.Req;
+package Remoa.BE.Web.Post.Dto.Request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ReqCommentReplyDto {
-    private String commentReply;
+public class ReqFeedbackReplyDto {
+    private String feedbackReply;
 }

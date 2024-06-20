@@ -10,6 +10,7 @@ import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Member.MemberUtils;
 import Remoa.BE.Web.Member.Service.MemberService;
 import Remoa.BE.Web.Post.Dto.Request.ReqFeedbackDto;
+import Remoa.BE.Web.Post.Dto.Request.ReqFeedbackReplyDto;
 import Remoa.BE.Web.Post.Service.PostService;
 import Remoa.BE.config.auth.MemberDetails;
 import Remoa.BE.exception.CustomMessage;
@@ -50,13 +51,13 @@ public class FeedbackReplyController {
     })
     @PostMapping("/reference/{reference_id}/feedback/{feedback_id}") // 레퍼런스에 피드백 대댓글 등록
     @Operation(summary = "피드백 대댓글 등록 Test Completed", description = "특정 피드백에 대댓글을 등록합니다.")
-    public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> registerFeedbackReply(@RequestBody ReqFeedbackDto req,
+    public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> registerFeedbackReply(@RequestBody ReqFeedbackReplyDto req,
                                                                                      @PathVariable("reference_id") Long postId,
                                                                                      @PathVariable("feedback_id") Long feedbackId,
                                                                                      @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Post /reference/{reference_id}/feedback/{feedback_id}");
 
-        String content = req.getFeedback();
+        String content = req.getFeedbackReply();
         Long memberId = memberDetails.getMemberId();
         Member myMember = memberService.findOne(memberId);
         feedbackReplyService.registerFeedbackReply(myMember, postId, feedbackId, content);
@@ -75,13 +76,13 @@ public class FeedbackReplyController {
     })
     @PutMapping("/reference/feedback/{feedback_id}/reply/{reply_id}") // 피드백 대댓글 수정
     @Operation(summary = "피드백 대댓글 수정 Test Completed", description = "작성한 피드백 대댓글을 수정합니다.")
-    public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> modifyFeedbackReply(@RequestBody ReqFeedbackDto req,
+    public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> modifyFeedbackReply(@RequestBody ReqFeedbackReplyDto req,
                                                                                    @PathVariable("feedback_id") Long feedbackId,
                                                                                    @PathVariable("reply_id") Long replyId,
                                                                                    @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Put /reference/feedback/{feedback_id}/reply/{reply_id}");
 
-        String content = req.getFeedback();
+        String content = req.getFeedbackReply();
         FeedbackReply reply = feedbackReplyService.findOne(replyId);
         Long myMemberId = memberDetails.getMemberId();
         if (!Objects.equals(reply.getMember().getMemberId(), myMemberId)) {
@@ -106,7 +107,8 @@ public class FeedbackReplyController {
     })
     @DeleteMapping("/reference/feedback/{feedback_id}/reply/{reply_id}") // 피드백 대댓글 삭제
     @Operation(summary = "피드백 대댓글 삭제 Test Completed", description = "작성한 피드백 대댓글을 삭제합니다.")
-    public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> deleteFeedbackReply(@PathVariable("reply_id") Long replyId,
+    public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> deleteFeedbackReply(@PathVariable("feedback_id") Long feedbackId,
+                                                                                   @PathVariable("reply_id") Long replyId,
                                                                                    @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Delete /reference/feedback/{feedback_id}/reply/{reply_id}");
 

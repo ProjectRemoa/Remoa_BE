@@ -59,7 +59,7 @@ public class CommentReplyController {
                                                                                   @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Post /reference/{reference_id}/comment/{comment_id}");
 
-        String content = req.getCommentReplyContent();
+        String content = req.getCommentReply();
         Long memberId = memberDetails.getMemberId();
         Member myMember = memberService.findOne(memberId);
 
@@ -88,7 +88,7 @@ public class CommentReplyController {
                                                                                 @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Put /reference/comment/{comment_id}/reply/{reply_id}");
 
-        String content = req.getCommentReplyContent();
+        String content = req.getCommentReply();
         CommentReply reply = commentReplyService.findOne(replyId);
 
         if (!Objects.equals(reply.getMember().getMemberId(), memberDetails.getMemberId())) {
@@ -112,7 +112,8 @@ public class CommentReplyController {
     })
     @DeleteMapping("/reference/comment/{comment_id}/reply/{reply_id}")
     @Operation(summary = "코멘트 대댓글 삭제 Test Completed", description = "작성한 코멘트 대댓글을 삭제합니다.")
-    public ResponseEntity<BaseResponse<List<ResCommentDto>>> deleteCommentReply(@PathVariable("reply_id") Long replyId,
+    public ResponseEntity<BaseResponse<List<ResCommentDto>>> deleteCommentReply(@PathVariable("comment_id") Long commentId,
+                                                                                @PathVariable("reply_id") Long replyId,
                                                                                 @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Delete /reference/comment/{comment_id}/reply/{reply_id}");
 
@@ -141,7 +142,7 @@ public class CommentReplyController {
     @PostMapping("/reference/comment-reply/{comment_reply_id}/like") // 코멘트 좋아요
     @Operation(summary = "코멘트 대댓글 좋아요 Test Completed", description = "코멘트 대댓글에 좋아요를 누릅니다.")
     public ResponseEntity<ResCommentReplyLikeDto> likeComment(@PathVariable("comment_reply_id") Long commentReplyId,
-                                                         @AuthenticationPrincipal MemberDetails memberDetails) {
+                                                              @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Post /comment/{comment_id}/like");
 
         Long memberId = memberDetails.getMemberId();
