@@ -135,17 +135,17 @@ public class FeedbackReplyController {
             @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/reference/feedback-reply/{feedback_reply_id}/like") // 피드백 좋아요
+    @PostMapping("/reference/feedback_reply/{reply_id}/like") // 피드백 좋아요
     @Operation(summary = "피드백 대댓글 좋아요", description = "피드백 대댓글에 좋아요를 누릅니다.")
-    public ResponseEntity<BaseResponse<ResFeedbackReplyLikeDto>> likeFeedback(@PathVariable("feedback_reply__id") Long feedbackReplyId,
+    public ResponseEntity<BaseResponse<ResFeedbackReplyLikeDto>> likeFeedback(@PathVariable("reply_id") Long replyId,
                                                                               @AuthenticationPrincipal MemberDetails memberDetails) {
 
         log.info("EndPoint Post /reference/feedback/{feedback_id}/like");
 
         Long memberId = memberDetails.getMemberId();
         Member myMember = memberService.findOne(memberId);
-        feedbackReplyService.likeFeedbackReply(myMember, feedbackReplyId);
-        int count = feedbackReplyService.feedbackReplyLikeCount(feedbackReplyId);
+        feedbackReplyService.likeFeedbackReply(myMember, replyId);
+        int count = feedbackReplyService.feedbackReplyLikeCount(replyId);
         ResFeedbackReplyLikeDto dto = new ResFeedbackReplyLikeDto(count);
         return ResponseEntity.ok(new BaseResponse<>(CustomMessage.OK, dto));
     }
