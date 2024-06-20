@@ -7,13 +7,12 @@ import Remoa.BE.Web.Comment.Repository.CommentRepository;
 import Remoa.BE.Web.CommentFeedback.Repository.CommentFeedbackRepository;
 import Remoa.BE.Web.Feedback.Domain.Feedback;
 import Remoa.BE.Web.Feedback.Domain.FeedbackReply;
-import Remoa.BE.Web.Feedback.Repository.FeedBackReplyRepository;
+import Remoa.BE.Web.Feedback.Repository.FeedbackReplyRepository;
 import Remoa.BE.Web.Feedback.Repository.FeedbackRepository;
 import Remoa.BE.Web.Post.Domain.Post;
 import Remoa.BE.Web.Post.Repository.PostRepository;
 import Remoa.BE.exception.CustomMessage;
 import Remoa.BE.exception.response.BaseException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +27,7 @@ public class AdminService {
     private final CommentRepository commentRepository;
     private final CommentReplyRepository commentReplyRepository;
     private final FeedbackRepository feedbackRepository;
-    private final FeedBackReplyRepository feedBackReplyRepository;
+    private final FeedbackReplyRepository feedBackReplyRepository;
     private final CommentFeedbackRepository commentFeedbackRepository;
 
     public void deletePost(Long postId) {

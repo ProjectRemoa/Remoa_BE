@@ -23,7 +23,7 @@ public class AuthConstant {
     public static final String[] GET_AUTH_BLACKLIST
             = {"/follow/{member_id}", "/following", "/follower", "/user", "/user/img",
             "/inquiry", "/inquiry/view", "/user/activity", "/user/scrap", "/user/comment",
-            "/user/receive", "/user/feedback", "/user/reference", "/user/comment-feedback" };
+            "/user/receive", "/user/feedback", "/user/reference", "/user/comment-feedback"};
 
     // POST 메서드에 대한 인증이 필요한 경로
     public static final String[] POST_AUTH_BLACKLIST
@@ -31,13 +31,14 @@ public class AuthConstant {
             "/reference/{reference_id}/comment/{comment_id}", "/comment/{comment_id}/like",
             "/reference/{reference_id}/{page_number}", "/reference/{reference_id}/feedback/{feedback_id}",
             "/reference/feedback/{feedback_id}/like", "/reference", "/reference/{reference_id}/like",
-            "/reference/{reference_id}/scrap"};
+            "/reference/{reference_id}/scrap", "/reference/feedback-reply/{feedback_reply_id}/like",
+            "/reference/comment-reply/{comment_reply_id}/like"};
 
     // PUT 메서드에 대한 인증이 필요한 경로
     public static final String[] PUT_AUTH_BLACKLIST
             = {"/user", "/user/img", "/reference/comment/{comment_id}", "/reference/feedback/{feedback_id}",
-            "/reference/{reference_id}", "/inquiry/{inquiryId}", "/api/member/logout","/reference/feedback/{feedback_id}/reply/{reply_id}",
-             "/reference/comment/{comment_id}/reply/{reply_id}"};
+            "/reference/{reference_id}", "/inquiry/{inquiryId}", "/api/member/logout", "/reference/feedback/{feedback_id}/reply/{reply_id}",
+            "/reference/comment/{comment_id}/reply/{reply_id}"};
 
     // DELETE 메서드에 대한 인증이 필요한 경로
     public static final String[] DELETE_AUTH_BLACKLIST

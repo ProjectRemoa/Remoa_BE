@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface FeedBackReplyRepository extends JpaRepository<FeedbackReply, Long> {
+public interface FeedbackReplyRepository extends JpaRepository<FeedbackReply, Long> {
 
     List<FeedbackReply> findByFeedbackOrderByFeedbackReplyTimeAsc(Feedback feedback);
 }

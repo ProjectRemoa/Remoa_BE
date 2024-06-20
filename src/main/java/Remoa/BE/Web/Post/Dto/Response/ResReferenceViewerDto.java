@@ -1,7 +1,6 @@
 package Remoa.BE.Web.Post.Dto.Response;
 
 import Remoa.BE.Web.Comment.Dto.Res.ResCommentDto;
-import Remoa.BE.Web.Feedback.Dto.ResFeedbackDto;
 import Remoa.BE.Web.Feedback.Dto.ResFeedbackDto2;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Member.Dto.Res.ResMemberInfoDto;

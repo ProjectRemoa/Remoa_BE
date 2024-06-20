@@ -68,4 +68,27 @@ public class CommentReplyService {
     public Optional<CommentReplyLike> findCommentReplyLike(Member member, CommentReply commentReply) {
         return commentReplyLikeRepository.findByMemberAndCommentReply(member, commentReply);
     }
+
+    @Transactional
+    public void likeCommentReply(Member member, Long commentReplyId) {
+        CommentReply commentReplyObj = findOne(commentReplyId);
+        Integer commentReplyLikeCount = commentReplyObj.getLikeCount();
+
+        // CommentReplyLike를 db에서 조회해보고 조회 결과가 null이면 like+=1, CommentReplyLike 엔티티 생성
+        // null이 아니면 like -= 1, 조회결과인 해당 CommentReplyLike 엔티티 삭제
+        Optional<CommentReplyLike> commentReplyLike = findCommentReplyLike(member, commentReplyObj);
+        if (commentReplyLike.isEmpty()) {
+            commentReplyObj.setLikeCount(commentReplyLikeCount + 1); // 좋아요 수 1 증가
+            CommentReplyLike commentReplyLikeObj = CommentReplyLike.createCommentReplyLike(member, commentReplyObj);
+            commentReplyLikeRepository.save(commentReplyLikeObj);
+        } else {
+            commentReplyObj.setLikeCount(commentReplyLikeCount - 1); // 좋아요 수 1 차감
+            commentReplyLikeRepository.deleteById(commentReplyLike.get().getCommentReplyLikeId()); // db에서 삭제
+        }
+    }
+
+    public int commentReplyLikeCount(Long commentReplyId) {
+        CommentReply commentReply = findOne(commentReplyId);
+        return commentReply.getLikeCount();
+    }
 }

@@ -6,7 +6,6 @@ import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Member.MemberUtils;
 import Remoa.BE.Web.Member.Service.MemberService;
 import Remoa.BE.Web.Post.Domain.Post;
-import Remoa.BE.Web.Feedback.Dto.ResFeedbackDto;
 import Remoa.BE.Web.Post.Dto.Response.ResReferenceViewerDto;
 import Remoa.BE.Web.Post.Service.PostService;
 import Remoa.BE.config.auth.MemberDetails;

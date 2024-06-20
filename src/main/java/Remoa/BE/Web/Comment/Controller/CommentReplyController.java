@@ -3,6 +3,9 @@ package Remoa.BE.Web.Comment.Controller;
 import Remoa.BE.Web.Comment.Domain.CommentReply;
 import Remoa.BE.Web.Comment.Dto.Req.ReqCommentReplyDto;
 import Remoa.BE.Web.Comment.Dto.Res.ResCommentDto;
+import Remoa.BE.Web.Comment.Dto.Res.ResCommentLikeDto;
+import Remoa.BE.Web.Comment.Dto.Res.ResCommentReplyDto;
+import Remoa.BE.Web.Comment.Dto.Res.ResCommentReplyLikeDto;
 import Remoa.BE.Web.Comment.Service.CommentReplyService;
 import Remoa.BE.Web.Comment.Service.CommentService;
 import Remoa.BE.Web.Comment.Domain.Comment;
@@ -128,4 +131,25 @@ public class CommentReplyController {
         BaseResponse<List<ResCommentDto>> response = new BaseResponse<>(CustomMessage.OK, resCommentDtos);
         return ResponseEntity.ok(response);
     }
+
+    // 코멘트 좋아요
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "코멘트 대댓글에 성공적으로 좋아요를 눌렀습니다."),
+            @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/reference/comment-reply/{comment_reply_id}/like") // 코멘트 좋아요
+    @Operation(summary = "코멘트 대댓글 좋아요 Test Completed", description = "코멘트 대댓글에 좋아요를 누릅니다.")
+    public ResponseEntity<ResCommentReplyLikeDto> likeComment(@PathVariable("comment_reply_id") Long commentReplyId,
+                                                         @AuthenticationPrincipal MemberDetails memberDetails) {
+        log.info("EndPoint Post /comment/{comment_id}/like");
+
+        Long memberId = memberDetails.getMemberId();
+        Member member = memberService.findOne(memberId);
+        commentReplyService.likeCommentReply(member, commentReplyId);
+        int count = commentReplyService.commentReplyLikeCount(commentReplyId);
+        ResCommentReplyLikeDto responseDto = new ResCommentReplyLikeDto(count);
+        return ResponseEntity.ok(responseDto);
+    }
+
 }

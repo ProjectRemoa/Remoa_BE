@@ -110,7 +110,7 @@ public class FeedbackService {
     }
 
     @Transactional
-    public void likeFeedback(Long memberId, Member myMember, Long feedbackId) {
+    public void likeFeedback(Member myMember, Long feedbackId) {
         Feedback feedbackObj = findOne(feedbackId);
         Integer feedbackLikeCount = feedbackObj.getLikeCount();
 

@@ -145,17 +145,16 @@ public class CommentService {
     }
 
     @Transactional
-    public void likeComment(Long memberId, Long commentId) {
+    public void likeComment(Member member, Long commentId) {
         Comment commentObj = findOne(commentId);
         Integer commentLikeCount = commentObj.getLikeCount();
-        Member myMember = memberService.findOne(memberId);
 
         // CommentLike를 db에서 조회해보고 조회 결과가 null이면 like+=1, CommentLike 엔티티 생성
         // null이 아니면 like -= 1, 조회결과인 해당 CommentLike 엔티티 삭제
-        Optional<CommentLike> commentLike = findCommentLike(myMember, commentObj);
+        Optional<CommentLike> commentLike = findCommentLike(member, commentObj);
         if (commentLike.isEmpty()) {
             commentObj.setLikeCount(commentLikeCount + 1); // 좋아요 수 1 증가
-            CommentLike commentLikeObj = CommentLike.createCommentLike(myMember, commentObj);
+            CommentLike commentLikeObj = CommentLike.createCommentLike(member, commentObj);
             commentLikeRepository.save(commentLikeObj);
         } else {
             commentObj.setLikeCount(commentLikeCount - 1); // 좋아요 수 1 차감

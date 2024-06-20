@@ -10,7 +10,6 @@ import Remoa.BE.Web.Member.MemberUtils;
 import Remoa.BE.Web.Member.Service.MemberService;
 import Remoa.BE.Web.Post.Domain.Post;
 import Remoa.BE.Web.Post.Dto.Request.ReqFeedbackDto;
-import Remoa.BE.Web.Feedback.Dto.ResFeedbackDto;
 import Remoa.BE.Web.Post.Service.PostService;
 import Remoa.BE.config.auth.MemberDetails;
 import Remoa.BE.exception.CustomMessage;
@@ -55,9 +54,9 @@ public class FeedbackController {
     @PostMapping("/reference/{reference_id}/{page_number}") // 레퍼런스에 피드백 등록
     @Operation(summary = "피드백 등록 Test completed", description = "특정 게시물 페이지에 피드백을 등록합니다.")
     public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> registerFeedback(@RequestBody ReqFeedbackDto req,
-                                                                               @PathVariable("reference_id") Long postId,
-                                                                               @PathVariable("page_number") Integer pageNumber,
-                                                                               @AuthenticationPrincipal MemberDetails memberDetails) {
+                                                                                @PathVariable("reference_id") Long postId,
+                                                                                @PathVariable("page_number") Integer pageNumber,
+                                                                                @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Post /reference/{reference_id}/{page_number}");
 
 
@@ -89,8 +88,8 @@ public class FeedbackController {
     @PutMapping("/reference/feedback/{feedback_id}") // 피드백 수정
     @Operation(summary = "피드백 수정 Test completed", description = "작성한 피드백을 수정합니다.")
     public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> modifyFeedback(@RequestBody ReqFeedbackDto req,
-                                                                             @PathVariable("feedback_id") Long feedbackId,
-                                                                             @AuthenticationPrincipal MemberDetails memberDetails) {
+                                                                              @PathVariable("feedback_id") Long feedbackId,
+                                                                              @AuthenticationPrincipal MemberDetails memberDetails) {
 
         log.info("EndPoint Put /reference/feedback/{feedback_id}");
 
@@ -107,7 +106,7 @@ public class FeedbackController {
         // 조회한 post의 feedback 조회 및 각 feedback에 대한 feedbackReply 조회 -> 이후 ResFeedbackDto로 매핑
         List<ResFeedbackDto2> resFeedbackDto2s = memberUtils.feedbackList(f.getPost().getPostId(), myMember);
 
-        return ResponseEntity.ok( new BaseResponse<>(CustomMessage.OK, resFeedbackDto2s));
+        return ResponseEntity.ok(new BaseResponse<>(CustomMessage.OK, resFeedbackDto2s));
         // return successResponse(CustomMessage.OK, feedbacks);
     }
 
@@ -120,7 +119,7 @@ public class FeedbackController {
     @DeleteMapping("/reference/feedback/{feedback_id}")
     @Operation(summary = "피드백 삭제 Test Completed", description = "작성한 피드백을 삭제합니다.")
     public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> deleteFeedback(@PathVariable("feedback_id") Long feedbackId,
-                                                                             @AuthenticationPrincipal MemberDetails memberDetails) {
+                                                                              @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Delete /reference/feedback/{feedback_id}");
 
         Feedback f = feedbackService.findOne(feedbackId);
@@ -155,7 +154,7 @@ public class FeedbackController {
 
         Long memberId = memberDetails.getMemberId();
         Member myMember = memberService.findOne(memberId);
-        feedbackService.likeFeedback(memberId, myMember, feedbackId);
+        feedbackService.likeFeedback(myMember, feedbackId);
         int count = feedbackService.feedbackLikeCount(feedbackId);
         ResFeedbackLikeDto dto = new ResFeedbackLikeDto(count);
         BaseResponse<ResFeedbackLikeDto> response = new BaseResponse<>(CustomMessage.OK, dto);

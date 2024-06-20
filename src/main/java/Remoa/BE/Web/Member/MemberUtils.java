@@ -17,7 +17,6 @@ import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Member.Dto.Res.ResMemberInfoDto;
 import Remoa.BE.Web.Member.Service.FollowService;
 import Remoa.BE.Web.Post.Domain.Post;
-import Remoa.BE.Web.Feedback.Dto.ResFeedbackDto;
 import Remoa.BE.Web.Post.Service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

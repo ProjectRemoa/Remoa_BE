@@ -126,14 +126,15 @@ public class CommentController {
             @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/comment/{comment_id}/like") // 코멘트 좋아요
+    @PostMapping("/reference/comment/{comment_id}/like") // 코멘트 좋아요
     @Operation(summary = "코멘트 좋아요 Test Completed", description = "코멘트에 좋아요를 누릅니다.")
     public ResponseEntity<ResCommentLikeDto> likeComment(@PathVariable("comment_id") Long commentId,
                                               @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Post /comment/{comment_id}/like");
 
         Long memberId = memberDetails.getMemberId();
-        commentService.likeComment(memberId, commentId);
+        Member member = memberService.findOne(memberId);
+        commentService.likeComment(member, commentId);
         int count = commentService.commentLikeCount(commentId);
         ResCommentLikeDto responseDto = new ResCommentLikeDto(count);
         return ResponseEntity.ok(responseDto);

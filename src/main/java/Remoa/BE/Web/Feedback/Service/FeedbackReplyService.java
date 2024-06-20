@@ -4,8 +4,8 @@ package Remoa.BE.Web.Feedback.Service;
 import Remoa.BE.Web.Feedback.Domain.Feedback;
 import Remoa.BE.Web.Feedback.Domain.FeedbackReply;
 import Remoa.BE.Web.Feedback.Domain.FeedbackReplyLike;
-import Remoa.BE.Web.Feedback.Repository.FeedBackReplyLikeRepository;
-import Remoa.BE.Web.Feedback.Repository.FeedBackReplyRepository;
+import Remoa.BE.Web.Feedback.Repository.FeedbackReplyLikeRepository;
+import Remoa.BE.Web.Feedback.Repository.FeedbackReplyRepository;
 import Remoa.BE.Web.Feedback.Repository.FeedbackRepository;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Post.Domain.Post;
@@ -28,8 +28,8 @@ public class FeedbackReplyService {
 
     private final PostRepository postRepository;
     private final FeedbackRepository feedbackRepository;
-    private final FeedBackReplyRepository feedbackReplyRepository;
-    private final FeedBackReplyLikeRepository feedBackReplyLikeRepository;
+    private final FeedbackReplyRepository feedbackReplyRepository;
+    private final FeedbackReplyLikeRepository feedbackReplyLikeRepository;
 
 
     @Transactional
@@ -66,6 +66,30 @@ public class FeedbackReplyService {
     }
 
     public Optional<FeedbackReplyLike> findFeedbackReplyLike(Member member, FeedbackReply feedbackReply) {
-        return feedBackReplyLikeRepository.findByMemberAndFeedbackReply(member, feedbackReply);
+        return feedbackReplyLikeRepository.findByMemberAndFeedbackReply(member, feedbackReply);
     }
+
+    @Transactional
+    public void likeFeedbackReply(Member myMember, Long feedbackReplyId) {
+        FeedbackReply feedbackReplyObj = findOne(feedbackReplyId);
+        Integer feedbackReplyLikeCount = feedbackReplyObj.getLikeCount();
+
+        // FeedbackReplyLike를 db에서 조회해보고 조회 결과가 null이면 like+=1, FeedbackReplyLike 엔티티 추가
+        // null이 아니면 like -=1, 조회결과인 해당 FeedbackReplyLike 엔티티 삭제
+        Optional<FeedbackReplyLike> feedbackReplyLike = findFeedbackReplyLike(myMember, feedbackReplyObj);
+        if (feedbackReplyLike.isEmpty()) {
+            feedbackReplyObj.setLikeCount(feedbackReplyLikeCount + 1); // 좋아요 수 1 증가
+            FeedbackReplyLike feedbackReplyLikeObj = FeedbackReplyLike.createFeedbackReplyLike(myMember, feedbackReplyObj);
+            feedbackReplyLikeRepository.save(feedbackReplyLikeObj);
+        } else {
+            feedbackReplyObj.setLikeCount(feedbackReplyLikeCount - 1); // 좋아요 수 1 차감
+            feedbackReplyLikeRepository.deleteById(feedbackReplyLike.get().getFeedbackReplyLikeId()); // db에서 삭제
+        }
+    }
+
+    public int feedbackReplyLikeCount(Long feedbackReplyId) {
+        FeedbackReply feedbackReply = findOne(feedbackReplyId);
+        return feedbackReply.getLikeCount();
+    }
+
 }
