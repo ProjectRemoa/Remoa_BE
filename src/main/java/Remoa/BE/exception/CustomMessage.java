@@ -46,7 +46,8 @@ public enum CustomMessage {
 
     FILE_SIZE_OVER(HttpStatus.BAD_REQUEST, "파일 업/다운로드 오류", "파일 사이즈가 최대 허용 크기보다 큽니다."),
     IMAGE_PIXEL_LACK(HttpStatus.BAD_REQUEST, "파일 업/다운로드 오류", "이미지 픽셀이 최소 규격에 미달합니다."),
-    
+    INVALID_FILE_LENGTH(HttpStatus.BAD_REQUEST, "파일 길이 초과", "업로드하려는 파일의 길이가 너무 깁니다."),
+
     //401권한오류
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "권한이 없습니다", "인증에 필요한 쿠키 정보가 없습니다"),
     NOT_VALID_TOKEN(HttpStatus.UNAUTHORIZED, "권한이 없습니다", "토큰이 유효하지 않습니다."),

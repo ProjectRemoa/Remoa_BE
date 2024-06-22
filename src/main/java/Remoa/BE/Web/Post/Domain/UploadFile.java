@@ -28,7 +28,7 @@ public class UploadFile {
     /**
      * UUID.randomUUID()를 통해 받은 랜덤값을 통해 S3파일 서버에 저장할 파일의 이름
      */
-    @Column(name = "save_file_name")
+    @Column(name = "save_file_name", length = 500)
     private String saveFileName;
 
     /**
@@ -41,7 +41,7 @@ public class UploadFile {
      * Lob 는 긴 문자열을 처리해 줍니다.
      */
     @Lob
-    @Column(name = "store_file_url")
+    @Column(name = "store_file_url", length = 500)
     private String storeFileUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)

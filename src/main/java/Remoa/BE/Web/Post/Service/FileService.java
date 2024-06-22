@@ -4,6 +4,9 @@ import Remoa.BE.Web.Post.Domain.Post;
 import Remoa.BE.Web.Post.Domain.UploadFile;
 import Remoa.BE.Web.Post.Repository.PostRepository;
 import Remoa.BE.Web.Post.Repository.UploadFileRepository;
+import Remoa.BE.exception.CustomMessage;
+import Remoa.BE.exception.response.BaseException;
+import Remoa.BE.exception.response.BaseResponse;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
@@ -42,17 +45,16 @@ public class FileService {
     private String bucket;
 
     /**
-     *
-     * @param post 게시글
+     * @param post          게시글
      * @param multipartFile 해당 게시글의 파일 리스트
-     * 파일들을 저장해준다
+     *                      파일들을 저장해준다
      */
     @Transactional
-    public void saveUploadFiles(Post post, MultipartFile thumbnail, List<MultipartFile> multipartFile){
+    public void saveUploadFiles(Post post, MultipartFile thumbnail, List<MultipartFile> multipartFile) {
 
         //썸네일 파일 저장 추가
-        saveUploadFile(thumbnail,post,"thumbnail");
-        if(multipartFile!=null) {
+        saveUploadFile(thumbnail, post, "thumbnail");
+        if (multipartFile != null) {
             multipartFile.forEach(file -> saveUploadFile(file, post, "post"));
         }
 
@@ -67,27 +69,26 @@ public class FileService {
     }
 
     /**
-     *
-     * @param post 수정할 게시글
+     * @param post          수정할 게시글
      * @param multipartFile 해당 게시글의 수정할 파일 리스트
-     * Post 엔티티의 file들을 수정해준다
+     *                      Post 엔티티의 file들을 수정해준다
      */
     @Transactional
-    public void modifyUploadFiles(Post post, MultipartFile thumbnail, List<MultipartFile> multipartFile){
+    public void modifyUploadFiles(Post post, MultipartFile thumbnail, List<MultipartFile> multipartFile) {
 
         List<UploadFile> recentFiles = uploadFileRepository.findFilesByPost(post);
         // 이미 해당하는 post에 파일 정보를 삭제처리
-        if(recentFiles.size() > 0){
+        if (recentFiles.size() > 0) {
             recentFiles.forEach(file -> {
                 file.setDeleted(true); // DB 삭제 처리(delete 컬럼 update 1)
                 uploadFileRepository.modifyFile(file);
-          //      amazonS3.deleteObject(new DeleteObjectRequest(bucket, file.getSaveFileName())); // S3에서 삭제처리
+                //      amazonS3.deleteObject(new DeleteObjectRequest(bucket, file.getSaveFileName())); // S3에서 삭제처리
             });
         }
 
         //썸네일 파일 저장 추가
-        saveUploadFile(thumbnail,post,"thumbnail");
-        if(multipartFile!=null) {
+        saveUploadFile(thumbnail, post, "thumbnail");
+        if (multipartFile != null) {
             multipartFile.forEach(file -> saveUploadFile(file, post, "post"));
         }
 
@@ -102,64 +103,95 @@ public class FileService {
     }
 
     /**
-     *
      * @param multipartFile 파일
      */
     @Transactional
-    public void saveUploadFile(MultipartFile multipartFile, Post post, String folderName){
+    public void saveUploadFile(MultipartFile multipartFile, Post post, String folderName) {
+        String originalFilename = validateAndAdjustFileName(multipartFile);
 
-        //파일 타입과 사이즈 저장
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(multipartFile.getContentType());
-        objectMetadata.setContentLength(multipartFile.getSize());
+        String s3name = generateUniqueFileName(folderName, originalFilename);
 
-        log.info(multipartFile.getContentType());
+        uploadToS3(multipartFile, s3name);
 
-        //파일 이름
+        String storeFileUrl = getAmazonS3Url(bucket, s3name);
+
+        validateAndSaveUploadFile(originalFilename, s3name, storeFileUrl, post);
+    }
+
+    private String validateAndAdjustFileName(MultipartFile multipartFile) {
+        // 파일 이름
         String originalFilename = multipartFile.getOriginalFilename();
-
-        //파일 이름이 비어있으면 (assert 오류 반환)
         assert originalFilename != null;
-        //확장자
-        String ext = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
 
-        //파일 이름이 겹치지 않게
+        // 파일 이름 길이 검사 및 조정
+        if (originalFilename.length() > 255) {
+            log.info("originalFilename too long: {}", originalFilename);
+            originalFilename = originalFilename.substring(0, 255);
+        }
+        return originalFilename;
+    }
+
+    private String generateUniqueFileName(String folderName, String originalFilename) {
+        // 파일 이름이 겹치지 않게
         String uuid = UUID.randomUUID().toString();
+        String s3name = folderName + "/" + uuid + "_" + originalFilename;
 
-        //post 폴더에 따로 넣어서 보관
-        String s3name = folderName+"/"+uuid+"_"+originalFilename;
+        // 파일 이름 길이 검사
+        if (s3name.length() > 500) {
+            log.info("s3name too long: {}", s3name);
+            throw new BaseException(CustomMessage.INVALID_FILE_LENGTH);
+        }
+        return s3name;
+    }
 
+    private void uploadToS3(MultipartFile multipartFile, String s3name) {
         try (InputStream inputStream = multipartFile.getInputStream()) {
+            // 파일 업로드
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentType(multipartFile.getContentType());
+            objectMetadata.setContentLength(multipartFile.getSize());
+
             amazonS3.putObject(new PutObjectRequest(bucket, s3name, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {
-            //파일을 제대로 받아오지 못했을때
-            //Todo 예외처리 custom 따로 만들기
+            // 파일을 제대로 받아오지 못했을 때 예외 처리
             throw new RuntimeException(e);
         }
+    }
 
-        //파일 보관 url
-        String storeFileUrl = amazonS3.getUrl(bucket,s3name).toString().replaceAll("\\+", "+");
+    private String getAmazonS3Url(String bucket, String s3name) {
+        // 파일 보관 URL
+        String storeFileUrl = amazonS3.getUrl(bucket, s3name).toString().replaceAll("\\+", "+");
+
+        // URL 길이 검사
+        if (storeFileUrl.length() > 500) {
+            log.info("storeFileUrl too long: {}", storeFileUrl);
+            throw new BaseException(CustomMessage.INVALID_FILE_LENGTH);
+        }
+        return storeFileUrl;
+    }
+
+    private void validateAndSaveUploadFile(String originalFilename, String s3name, String storeFileUrl, Post post) {
         UploadFile uploadFile = new UploadFile();
         uploadFile.setOriginalFileName(originalFilename);
         uploadFile.setSaveFileName(s3name);
         uploadFile.setStoreFileUrl(storeFileUrl);
-        uploadFile.setExtension(ext);
+        uploadFile.setExtension(originalFilename.substring(originalFilename.lastIndexOf(".") + 1));
         uploadFile.setPost(post);
 
-        uploadFileList.add(uploadFile);
-
+        // 데이터베이스에 저장
         uploadFileRepository.saveFile(uploadFile);
 
-        log.info(storeFileUrl);
+        // 로깅
+        log.info("Stored file URL: {}", storeFileUrl);
     }
 
-    public String getUrl(Long fileId){
+
+    public String getUrl(Long fileId) {
         Optional<UploadFile> file = uploadFileRepository.findById(fileId);
-        if(file.isPresent()){
+        if (file.isPresent()) {
             return file.get().getStoreFileUrl();
-        }
-        else{
+        } else {
             //해당 파일이 없을떄 예외처리
             //Todo 예외처리 custom 따로 만들기
             throw new RuntimeException();
@@ -170,7 +202,7 @@ public class FileService {
     public ResponseEntity<byte[]> getObject(Long fileId) throws IOException {
 
         Optional<UploadFile> file = uploadFileRepository.findById(fileId);
-        if(file.isPresent()){
+        if (file.isPresent()) {
             String s3name = file.get().getSaveFileName();
 
             S3Object o = amazonS3.getObject(new GetObjectRequest(bucket, s3name));
@@ -187,8 +219,7 @@ public class FileService {
             httpHeaders.setContentDispositionFormData("attachment", fileNameFix);
 
             return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
-        }
-        else{
+        } else {
             //해당 파일이 없을떄 예외처리
             //Todo 예외처리 custom 따로 만들기
             throw new RuntimeException();
