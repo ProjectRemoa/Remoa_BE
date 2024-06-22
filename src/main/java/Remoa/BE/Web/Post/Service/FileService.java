@@ -181,7 +181,7 @@ public class FileService {
 
         // 데이터베이스에 저장
         uploadFileRepository.saveFile(uploadFile);
-
+        uploadFileList.add(uploadFile);
         // 로깅
         log.info("Stored file URL: {}", storeFileUrl);
     }
