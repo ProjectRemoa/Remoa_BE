@@ -6,9 +6,12 @@ import Remoa.BE.Web.Member.Dto.Res.KakaoLoginResponseDto;
 import Remoa.BE.Web.Member.Dto.kakaoLoginDto.KakaoProfile;
 import Remoa.BE.Web.Member.Dto.kakaoLoginDto.OAuthToken;
 import Remoa.BE.Web.Member.Repository.MemberRepository;
+import Remoa.BE.config.auth.RefreshToken;
 import Remoa.BE.config.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,17 +21,22 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class KakaoService {
 
+    @Value("${security.jwt.token.refresh-expiration-minutes}")
+    public long refreshExpirationMinutes;
+
+
     private final Random random = new Random();
+    private final RedisTemplate<String, Object> redisTemplate;
 
     //카카오 로그인시 접속해야 할 링크 : https://kauth.kakao.com/oauth/authorize?client_id=139febf9e13da4d124d1c1faafcf3f86&redirect_uri=http://localhost:8080/login/kakao&response_type=code
 
-    private static String password = "password";
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -48,8 +56,20 @@ public class KakaoService {
             member = memberRepository.save(kakaoLoginRequestDto.toEntity());
         }
         String token = jwtTokenProvider.createToken(member.getAccount()); //임의로 만든 account로 토큰 생성.
-        return new KakaoLoginResponseDto(token, member);
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getAccount()); // 리프레시 토큰 생성
+
+        log.info("refreshToken : {}", refreshToken);
+        updateRefreshToken(member, refreshToken);
+
+        return new KakaoLoginResponseDto(token, refreshToken, member);
     } // 그냥 회원 가입 할 경우는 로그인을 따로 진행해야 토큰을 주고, 카카오 로그인을 할 경우 처음 등록시에도 토큰을 부여? -> yes
+
+    private void updateRefreshToken(Member member, String refreshToken) {
+        RefreshToken refreshTokenObj = (RefreshToken) redisTemplate.opsForValue().get(member.getAccount());
+        refreshTokenObj.updateRefreshToken(refreshToken);
+        redisTemplate.opsForValue().set(member.getAccount(), refreshToken, refreshExpirationMinutes, TimeUnit.MINUTES);
+    }
+
 
     private String generateUniqueNickname() {
         String randomNumber;

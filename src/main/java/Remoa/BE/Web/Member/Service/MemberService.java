@@ -3,11 +3,14 @@ package Remoa.BE.Web.Member.Service;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Member.Dto.GerneralLoginDto.*;
 import Remoa.BE.Web.Member.Repository.MemberRepository;
+import Remoa.BE.config.auth.RefreshToken;
 import Remoa.BE.config.jwt.JwtTokenProvider;
 import Remoa.BE.exception.CustomMessage;
 import Remoa.BE.exception.response.BaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,18 +20,22 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional(readOnly = true)
 @Slf4j
 @RequiredArgsConstructor
 public class MemberService {
+    @Value("${security.jwt.token.refresh-expiration-minutes}")
+    public long refreshExpirationMinutes;
 
     private final Random random = new Random();
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
     private final PasswordEncoder bCryptPasswordEncoder;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Transactional
     public Long join(Member member) {
@@ -46,9 +53,19 @@ public class MemberService {
             throw new BaseException(CustomMessage.UNAUTHORIZED);
         }
         String token = jwtTokenProvider.createToken(member.getAccount());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getAccount());
+        log.info("refreshToken : {}", refreshToken);
 
-        return new GeneralLoginRes(token, member);
+        updateRefreshToken(member, refreshToken);
+
+        return new GeneralLoginRes(token, refreshToken, member);
     }
+
+    public void updateRefreshToken(Member member, String refreshToken) {
+        RefreshToken token = new RefreshToken(member.getAccount(), refreshToken);
+        redisTemplate.opsForValue().set(member.getAccount(), token, refreshExpirationMinutes, TimeUnit.MINUTES); // 만료 시간을 분 단위로 설정
+    }
+
 
     private void validateDuplicateMember(Member member) {
         log.info("member={}", member.getEmail());
@@ -66,7 +83,7 @@ public class MemberService {
         }
         memberRepository.save(adminSignUpReq.toEntity());
     }
-    
+
     @Transactional
     public GeneralSignUpRes generalSignUp(GeneralSignUpReq signUpReq) {
         signUpReq.setPassword(bCryptPasswordEncoder.encode(signUpReq.getPassword()));

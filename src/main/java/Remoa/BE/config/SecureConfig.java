@@ -1,11 +1,11 @@
 package Remoa.BE.config;
 
 import Remoa.BE.Web.Member.Domain.Role;
-import Remoa.BE.Web.Member.Repository.AccessTokenRepository;
 import Remoa.BE.config.jwt.CustomAuthenticationEntryPoint;
 import Remoa.BE.config.jwt.JwtAccessDeniedHandler;
 import Remoa.BE.config.jwt.JwtAuthenticationFilter;
 import Remoa.BE.config.jwt.JwtTokenProvider;
+import Remoa.BE.config.redis.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,8 +31,7 @@ public class SecureConfig {
 
     private final CorsFilter corsFilter;
     private final JwtTokenProvider jwtTokenProvider;
-    private final AccessTokenRepository accessTokenRepository;
-
+    private final RedisUtils redisUtils;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -65,7 +64,7 @@ public class SecureConfig {
          인증이 되지않은 유저가 요청을 했을때 동작함
          */
 
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider,accessTokenRepository), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider,redisUtils), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

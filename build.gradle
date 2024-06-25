@@ -73,6 +73,23 @@ dependencies {
 
 	//json simple
 	implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-cache:3.1.2'
+
+	// 직렬화 관련
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+	implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2"
+
+	//ReadFrom
+	implementation 'io.lettuce:lettuce-core:6.2.6.RELEASE'
+
+	// @ConfigurationProperties
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:3.1.2"
+	// aop 관련
+	implementation 'org.springframework.boot:spring-boot-starter-aop:2.3.1.RELEASE'
+	implementation 'org.aspectj:aspectjweaver'
 }
 
 tasks.named('test') {

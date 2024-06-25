@@ -1,4 +1,4 @@
-package Remoa.BE.config.http;
+package Remoa.BE.config.auth.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;

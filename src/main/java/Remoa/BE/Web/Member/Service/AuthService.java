@@ -1,17 +1,20 @@
 package Remoa.BE.Web.Member.Service;
 
-import Remoa.BE.Web.Member.Domain.AccessToken;
 import Remoa.BE.Web.Member.Domain.Member;
-import Remoa.BE.Web.Member.Repository.AccessTokenRepository;
+import Remoa.BE.Web.Member.Dto.Res.ResReIssue;
 import Remoa.BE.Web.Member.Repository.MemberRepository;
 import Remoa.BE.config.jwt.JwtTokenProvider;
+import Remoa.BE.config.redis.RedisUtils;
 import Remoa.BE.exception.CustomMessage;
 import Remoa.BE.exception.response.BaseException;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -19,24 +22,56 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
-    private final AccessTokenRepository accessTokenRepository;
+    private final RedisUtils redisUtils;
+
+
+    @Transactional
+    public ResReIssue reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        String newAccessToken = null;
+        String refreshToken = null;
+        System.out.println("reissueAccessToken 진입");
+        try {
+            refreshToken = parseBearerToken(request, "Refresh-Token");
+            if (refreshToken == null) {
+                System.out.println("리프레시 토큰 없음");
+                throw new Exception();
+            }
+            String oldAccessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION);
+            jwtTokenProvider.validateRefreshToken(refreshToken, oldAccessToken);
+            newAccessToken = jwtTokenProvider.recreateAccessToken(oldAccessToken);
+            System.out.println("newAccessToken 발급 = " + newAccessToken);
+//            Authentication auth = jwtTokenProvider.getAuthentication(newAccessToken);
+//            SecurityContextHolder.getContext().setAuthentication(auth);
+
+        } catch (Exception e) {
+            throw new BaseException(CustomMessage.CANNOT_REISSUE_TOKEN);
+        }
+        return new ResReIssue(newAccessToken, refreshToken);
+    }
+
+    private String parseBearerToken(HttpServletRequest request, String headerName) {
+        return Optional.ofNullable(request.getHeader(headerName))
+                .filter(token -> token.substring(0, 7).equalsIgnoreCase("Bearer "))
+                .map(token -> token.substring(7))
+                .orElse(null);
+    }
 
 
     public void logout(HttpServletRequest request) {
         String accessToken = jwtTokenProvider.resolveToken(request);
-
         String account = getAccountFromAccessToken(accessToken);
-        Member member = findMemberByAccount(account);
+        //해당 액세스 토큰의 남은 유효 시간
+        long time = jwtTokenProvider.getAccessTokenExpirationDate(accessToken).getTime() - System.currentTimeMillis();
 
-        // AccessToken을 블랙리스트에 추가
-        AccessToken blacklistedToken = AccessToken.builder()
-                .token(accessToken)
-                .member(member)
-                .expirationDate(jwtTokenProvider.getAccessTokenExpirationDate(accessToken))
-                .blacklisted(true)
-                .build();
-        accessTokenRepository.save(blacklistedToken);
+        // AccessToken을 블랙리스트에 추가, 남은 유효시간만큼만 블랙리스트에 저장
+        redisUtils.setBlackList(accessToken, account, time);
+        // 리프레시 토큰도 무효화
+        //   refreshTokenRepository.deleteById(account);
+
+        // RedisUtils를 사용하여 리프레시 토큰 삭제
+        redisUtils.deleteRefreshToken(account);
     }
+
 
     private String getAccountFromAccessToken(String accessToken) {
         return jwtTokenProvider.getUserAccount(accessToken);

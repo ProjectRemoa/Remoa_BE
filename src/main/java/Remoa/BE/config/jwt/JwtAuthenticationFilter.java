@@ -1,7 +1,6 @@
 package Remoa.BE.config.jwt;
 
-import Remoa.BE.Web.Member.Domain.AccessToken;
-import Remoa.BE.Web.Member.Repository.AccessTokenRepository;
+import Remoa.BE.config.redis.RedisUtils;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
-import java.util.Optional;
 
 /**
  * 만들어둔 jwt 패키지에 OncePerRequestFilter를 상속받는 유효성 체크용 필터를 만든다.
@@ -29,7 +27,9 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final AccessTokenRepository accessTokenRepository;
+  //  private final AccessTokenRepository accessTokenRepository;
+    private final RedisUtils redisUtils;
+
 
     // Request로 들어오는 Jwt Token의 유효성을 검증하는 filter를 filterChain에 등록합니다.
     @Override
@@ -64,6 +64,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     }
 
     private boolean doNotLogout(String accessToken) {
-        return accessTokenRepository.findByToken(accessToken).isEmpty();
+        return !redisUtils.hasKeyBlackList(accessToken);
     }
 }

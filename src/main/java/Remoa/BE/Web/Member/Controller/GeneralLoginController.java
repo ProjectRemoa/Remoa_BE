@@ -4,6 +4,7 @@ import Remoa.BE.Web.Member.Dto.GerneralLoginDto.GeneralLoginReq;
 import Remoa.BE.Web.Member.Dto.GerneralLoginDto.GeneralLoginRes;
 import Remoa.BE.Web.Member.Dto.GerneralLoginDto.GeneralSignUpReq;
 import Remoa.BE.Web.Member.Dto.GerneralLoginDto.GeneralSignUpRes;
+import Remoa.BE.Web.Member.Dto.Res.ResReIssue;
 import Remoa.BE.Web.Member.Service.AuthService;
 import Remoa.BE.Web.Member.Service.MemberService;
 import Remoa.BE.config.jwt.JwtTokenProvider;
@@ -13,12 +14,14 @@ import Remoa.BE.exception.response.ErrorResponse;
 import Remoa.BE.utill.MessageUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,5 +88,25 @@ public class GeneralLoginController {
         authService.logout(request);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = MessageUtils.SUCCESS),
+            @ApiResponse(responseCode = "400", description = MessageUtils.BAD_REQUEST,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @Operation(summary = "토큰 재발급", description = "Header " +
+            "<br> Authorization : Bearer 만료토큰" +
+            "<br> Refresh-Token : Bearer 리프레시토큰" +
+            "<br> 재발급 요청 횟수 10회로 제한됨. 다시 로그인 한 경우 횟수 리셋")
+    @PutMapping("/reissue")
+    public ResponseEntity<BaseResponse<ResReIssue>> reissue(HttpServletRequest request,
+                                                            HttpServletResponse response,
+                                                            @Parameter(description = "Refresh token", in = ParameterIn.HEADER, schema = @Schema(type = "string"))
+                                                            @RequestHeader(value = "Refresh-Token", required = false) String refreshToken) {
+        log.info("PATCH /api/auth/reissue");
+
+        ResReIssue resReIssue = authService.reissueAccessToken(request, response);
+        return ResponseEntity.ok(new BaseResponse<>(CustomMessage.OK, resReIssue));
     }
 }

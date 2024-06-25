@@ -1,6 +1,7 @@
 package Remoa.BE.Web.Member.Dto.GerneralLoginDto;
 
 import Remoa.BE.Web.Member.Domain.Member;
+import Remoa.BE.Web.Member.Dto.Res.RemoaToken;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,8 +14,8 @@ import lombok.NoArgsConstructor;
 @Schema(description = "일반 테스트 로그인 응답")
 public class GeneralLoginRes {
 
-    @Schema(description = "JWT 인증 토큰", example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QWNjb3VudCIsImFjY291bnQiOiJ0ZXN0QWNjb3VudCIsImlhdCI6MTcxMDIyMTI1MCwiZXhwIjoxNzEwODI2MDUwfQ.wpMIUytr8MpqxGpFAJIlF8kG9OSm2KJE7xeUWQHVnAU")
-    String token;
+    @Schema(description = "토큰 정보")
+    RemoaToken remoaToken;
 
     @Schema(description = "회원 닉네임", example = "testNickname1")
     String nickname;
@@ -29,8 +30,8 @@ public class GeneralLoginRes {
     String role;
 
 
-    public GeneralLoginRes(String token, Member member) {
-        this.token = token;
+    public GeneralLoginRes(String accessToken, String refreshToken, Member member) {
+        this.remoaToken = new RemoaToken(accessToken, refreshToken);
         this.nickname = member.getNickname();
         this.name = member.getName();
         this.memberId = member.getMemberId();

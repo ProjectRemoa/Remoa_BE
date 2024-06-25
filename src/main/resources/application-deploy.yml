@@ -21,12 +21,20 @@ spring:
         #show-sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
+  data:
+    redis:
+      cluster:
+        max-redirects: 3
+        #password: 1111
+        connect-ip: ${REDIS_CLUSTER_IP}
+        nodes: ${REDIS_CLUSTER_NODES}
 
 security:
   jwt:
     token:
       secret-key: "remoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoa"
-      expire-length: "604800000" # 1 week in milliseconds
+      expiration-minutes: 5    # 3시간 -> 30분
+      refresh-expiration-minutes: 10    # 리프레시 토큰 유효시간은 24시간0" # 1 week in milliseconds
 
 springdoc:
   version: '@project.version@'
