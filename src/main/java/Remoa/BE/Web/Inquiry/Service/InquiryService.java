@@ -7,6 +7,7 @@ import Remoa.BE.Web.Inquiry.Dto.Res.ResAllInquiryDto;
 import Remoa.BE.Web.Inquiry.Dto.Res.ResInquiryDto;
 import Remoa.BE.Web.Inquiry.Repository.InquiryRepository;
 import Remoa.BE.Web.Inquiry.Domain.Inquiry;
+import Remoa.BE.Web.Notice.domain.Notice;
 import Remoa.BE.exception.CustomMessage;
 import Remoa.BE.exception.response.BaseException;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,18 @@ public class InquiryService {
     public void registerInquiry(ReqInquiryDto reqInquiryDto, String enrollNickname) {
 
         inquiryRepository.save(reqInquiryDto.toEntityInquiry(enrollNickname));
+    }
+
+    @Transactional
+    public void deleteInquiry(Long inquiryId, Member member) {
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
+
+        // 공지를 작성한 회원과 현재 로그인한 회원이 같은 경우에만 삭제를 허용합니다.
+        if (!inquiry.getAuthor().equals(member.getNickname())) {
+            throw new BaseException(CustomMessage.CAN_NOT_ACCESS);
+        }
+        inquiryRepository.delete(inquiry);
     }
 
     @Transactional

@@ -62,18 +62,38 @@ public class InquiryController {
             @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PutMapping("/inquiry/{inquiryId}")
+    @PutMapping("/inquiry/{id}")
     @Operation(summary = "문의 수정 Test Completed", description = "문의를 수정합니다.")
-    public ResponseEntity<Void> updateInquiry(@PathVariable Long inquiryId,
+    public ResponseEntity<Void> updateInquiry(@PathVariable("id") Long inquiryId,
                                                 @Validated @RequestBody ReqInquiryDto inquiryDto,
                                                 @AuthenticationPrincipal MemberDetails memberDetails) {
-        log.info("EndPoint Put /inquiry/{inquiryId}");
+        log.info("EndPoint Put /inquiry/{id}");
 
         Member myMember = memberService.findOne(memberDetails.getMemberId());
         inquiryService.updateInquiry(inquiryId, inquiryDto, myMember);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "문의가 성공적으로 수정되었습니다."),
+            @ApiResponse(responseCode = "400", description = MessageUtils.BAD_REQUEST,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @DeleteMapping("/inquiry/{id}")
+    @Operation(summary = "문의 삭제 Test Completed", description = "문의를 삭제합니다.")
+    public ResponseEntity<Void> deleteInquiry(@PathVariable("id") Long inquiryId,
+                                              @AuthenticationPrincipal MemberDetails memberDetails) {
+        log.info("EndPoint Put /inquiry/{id}");
+
+        Member myMember = memberService.findOne(memberDetails.getMemberId());
+        inquiryService.deleteInquiry(inquiryId, myMember);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "문의 목록을 성공적으로 조회했습니다."),

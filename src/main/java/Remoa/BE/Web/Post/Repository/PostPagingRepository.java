@@ -17,7 +17,7 @@ import java.util.List;
 @Repository
 public interface PostPagingRepository extends PagingAndSortingRepository<Post, Long>, PostCustomRepository {
 
-    @Query("SELECT p FROM Post p WHERE p.member.nickname LIKE :searchQuery OR p.title LIKE :searchQuery AND p.category = :category")
+    @Query("SELECT p FROM Post p WHERE (p.member.nickname LIKE %:searchQuery% OR p.title LIKE %:searchQuery%) AND p.category = :category")
     Page<Post> findByMemberNameOrTitleContainingAndCategory(Pageable pageable, String searchQuery, Category category);
 
     Page<Post> findByMemberAndTitleContainingOrderByPostingTimeDesc(Pageable pageable, Member member, String title);
