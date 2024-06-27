@@ -65,9 +65,9 @@ public class KakaoService {
     } // 그냥 회원 가입 할 경우는 로그인을 따로 진행해야 토큰을 주고, 카카오 로그인을 할 경우 처음 등록시에도 토큰을 부여? -> yes
 
     private void updateRefreshToken(Member member, String refreshToken) {
-        RefreshToken refreshTokenObj = (RefreshToken) redisTemplate.opsForValue().get(member.getAccount());
-        refreshTokenObj.updateRefreshToken(refreshToken);
-        redisTemplate.opsForValue().set(member.getAccount(), refreshToken, refreshExpirationMinutes, TimeUnit.MINUTES);
+        // 새로운 RefreshToken 객체를 생성하고 바로 저장
+        RefreshToken refreshTokenObj = new RefreshToken(member.getAccount(), refreshToken);
+        redisTemplate.opsForValue().set(member.getAccount(), refreshTokenObj, refreshExpirationMinutes, TimeUnit.MINUTES);
     }
 
 

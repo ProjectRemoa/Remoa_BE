@@ -61,11 +61,11 @@ public class MemberService {
         return new GeneralLoginRes(token, refreshToken, member);
     }
 
-    public void updateRefreshToken(Member member, String refreshToken) {
-        RefreshToken token = new RefreshToken(member.getAccount(), refreshToken);
-        redisTemplate.opsForValue().set(member.getAccount(), token, refreshExpirationMinutes, TimeUnit.MINUTES); // 만료 시간을 분 단위로 설정
+    private void updateRefreshToken(Member member, String refreshToken) {
+        // 새로운 RefreshToken 객체를 생성하고 바로 저장
+        RefreshToken refreshTokenObj = new RefreshToken(member.getAccount(), refreshToken);
+        redisTemplate.opsForValue().set(member.getAccount(), refreshTokenObj, refreshExpirationMinutes, TimeUnit.MINUTES);
     }
-
 
     private void validateDuplicateMember(Member member) {
         log.info("member={}", member.getEmail());
