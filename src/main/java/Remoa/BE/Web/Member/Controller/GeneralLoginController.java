@@ -104,7 +104,7 @@ public class GeneralLoginController {
                                                             HttpServletResponse response,
                                                             @Parameter(description = "Refresh token", in = ParameterIn.HEADER, schema = @Schema(type = "string"))
                                                             @RequestHeader(value = "Refresh-Token", required = false) String refreshToken) {
-        log.info("PATCH /api/auth/reissue");
+        log.info("PUT /api/member/reissue");
 
         ResReIssue resReIssue = authService.reissueAccessToken(request, response);
         return ResponseEntity.ok(new BaseResponse<>(CustomMessage.OK, resReIssue));

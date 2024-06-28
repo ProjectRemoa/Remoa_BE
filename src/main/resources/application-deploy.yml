@@ -34,7 +34,7 @@ security:
     token:
       secret-key: "remoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoaremoa"
       expiration-minutes: 1
-      refresh-expiration-minutes: 3
+      refresh-expiration-minutes: 10
 
 springdoc:
   version: '@project.version@'
