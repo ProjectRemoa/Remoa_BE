@@ -55,7 +55,7 @@ public enum CustomMessage {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "권한이 없습니다", "인증에 필요한 쿠키 정보가 없습니다"),
     NOT_VALID_TOKEN(HttpStatus.UNAUTHORIZED, "권한이 없습니다", "토큰이 유효하지 않습니다."),
     NO_TOKEN_FOUND(HttpStatus.UNAUTHORIZED, "권한이 없습니다", "토큰이 없습니다."),
-    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "권한이 없습니다", "토큰이 만료되었습니다."),
+    TOKEN_EXPIRED(HttpStatus.LOCKED, "권한이 없습니다", "토큰이 만료되었습니다."),
 
 
     // 403 권한오류
