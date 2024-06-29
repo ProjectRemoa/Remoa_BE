@@ -51,7 +51,7 @@ public class JwtTokenProvider {
     }
 
     @Transactional(readOnly = true)
-    public void validateRefreshToken(String refreshToken, String oldAccessToken) throws JsonProcessingException {
+    public void validateRefreshToken(String refreshToken, String oldAccessToken) {
         try {
             log.debug("Validating refresh token: {}", refreshToken);
             validateToken(refreshToken);
@@ -65,12 +65,9 @@ public class JwtTokenProvider {
 
             log.debug("Checking if refresh token is valid for account: {}", account);
             refreshToken1.orElseThrow(() -> new ExpiredJwtException(null, null, "Refresh token expired."));
-        } catch (BaseException e) {
-            log.error("BaseException: {}", e.getMessage(), e);
-            throw e;
         } catch (ExpiredJwtException e) {
             log.error("ExpiredJwtException: {}", e.getMessage(), e);
-            throw e;
+            throw new BaseException(CustomMessage.REFRESH_TOKEN_EXPIRED);
         } catch (Exception e) {
             log.error("Unexpected Exception: {}", e.getMessage(), e);
             throw new BaseException(CustomMessage.SERVER_ERROR);
@@ -91,7 +88,7 @@ public class JwtTokenProvider {
     }
 
     @Transactional
-    public String recreateAccessToken(String oldAccessToken) throws JsonProcessingException {
+    public String recreateAccessToken(String oldAccessToken) {
         if (oldAccessToken == null) {
             throw new BaseException(CustomMessage.BAD_REQUEST);
         }

@@ -29,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Enumeration;
 import java.util.Random;
 
 
@@ -93,18 +94,31 @@ public class GeneralLoginController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = MessageUtils.SUCCESS),
             @ApiResponse(responseCode = "400", description = MessageUtils.BAD_REQUEST,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "400", description = MessageUtils.UNAUTHORIZED,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @Operation(summary = "토큰 재발급", description = "Header " +
             "<br> Authorization : Bearer 만료토큰" +
-            "<br> Refresh-Token : Bearer 리프레시토큰" +
+            "<br> refresh-token : Bearer 리프레시토큰" +
             "<br> 재발급 요청 횟수 10회로 제한됨. 다시 로그인 한 경우 횟수 리셋")
     @PutMapping("/reissue")
     public ResponseEntity<BaseResponse<ResReIssue>> reissue(HttpServletRequest request,
                                                             HttpServletResponse response,
-                                                            @Parameter(description = "Refresh token", in = ParameterIn.HEADER, schema = @Schema(type = "string"))
-                                                            @RequestHeader(value = "Refresh-Token", required = false) String refreshToken) {
+                                                            @Parameter(description = "refresh-token", in = ParameterIn.HEADER, schema = @Schema(type = "string"))
+                                                            @RequestHeader(value = "refresh-token", required = false) String refreshToken) {
         log.info("PUT /api/member/reissue");
+
+
+        // 모든 헤더 값 출력
+//        Enumeration<String> headerNames = request.getHeaderNames();
+//        if (headerNames != null) {
+//            while (headerNames.hasMoreElements()) {
+//                String headerName = headerNames.nextElement();
+//                String headerValue = request.getHeader(headerName);
+//                log.info("Header: {} = {}", headerName, headerValue);
+//            }
+//        }
 
         ResReIssue resReIssue = authService.reissueAccessToken(request, response);
         return ResponseEntity.ok(new BaseResponse<>(CustomMessage.OK, resReIssue));

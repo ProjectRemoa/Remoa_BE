@@ -54,7 +54,11 @@ public class MemberService {
         }
         String token = jwtTokenProvider.createToken(member.getAccount());
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getAccount());
+
+        log.info("===============================================================");
+        log.info("token : {}", token);
         log.info("refreshToken : {}", refreshToken);
+        log.info("===============================================================");
 
         updateRefreshToken(member, refreshToken);
 

@@ -58,7 +58,11 @@ public class KakaoService {
         String token = jwtTokenProvider.createToken(member.getAccount()); //임의로 만든 account로 토큰 생성.
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getAccount()); // 리프레시 토큰 생성
 
+        log.info("===============================================================");
+        log.info("token : {}", token);
         log.info("refreshToken : {}", refreshToken);
+        log.info("===============================================================");
+
         updateRefreshToken(member, refreshToken);
 
         return new KakaoLoginResponseDto(token, refreshToken, member);

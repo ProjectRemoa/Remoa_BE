@@ -10,6 +10,7 @@ import Remoa.BE.exception.response.BaseException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
@@ -30,22 +32,28 @@ public class AuthService {
         String newAccessToken = null;
         String refreshToken = null;
         System.out.println("reissueAccessToken 진입");
-        try {
-            refreshToken = parseBearerToken(request, "Refresh-Token");
-            if (refreshToken == null) {
-                System.out.println("리프레시 토큰 없음");
-                throw new Exception();
-            }
-            String oldAccessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION);
-            jwtTokenProvider.validateRefreshToken(refreshToken, oldAccessToken);
-            newAccessToken = jwtTokenProvider.recreateAccessToken(oldAccessToken);
-            System.out.println("newAccessToken 발급 = " + newAccessToken);
+
+        refreshToken = parseBearerToken(request, "refresh-token");
+        if (refreshToken == null) {
+            System.out.println("리프레시 토큰 없음");
+            throw new BaseException(CustomMessage.REFRESH_TOKEN_NOT_EXIST);
+        }
+        String oldAccessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION);
+
+        log.info("===============================================================");
+        log.info("oldAccessToken : {}", oldAccessToken);
+        log.info("refreshToken : {}", refreshToken);
+        log.info("===============================================================");
+
+        jwtTokenProvider.validateRefreshToken(refreshToken, oldAccessToken);
+        newAccessToken = jwtTokenProvider.recreateAccessToken(oldAccessToken);
+
+        log.info("===============================================================");
+        log.info("new AccessToken 발급 = " + newAccessToken);
+        log.info("===============================================================");
 //            Authentication auth = jwtTokenProvider.getAuthentication(newAccessToken);
 //            SecurityContextHolder.getContext().setAuthentication(auth);
 
-        } catch (Exception e) {
-            throw new BaseException(CustomMessage.CANNOT_REISSUE_TOKEN);
-        }
         return new ResReIssue(newAccessToken, refreshToken);
     }
 
