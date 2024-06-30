@@ -32,13 +32,17 @@ public class AuthService {
         String newAccessToken = null;
         String refreshToken = null;
         System.out.println("reissueAccessToken 진입");
-
+        String oldAccessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION);
+        if (oldAccessToken == null || oldAccessToken.isEmpty()) {
+            System.out.println("만료 엑세스 토큰 없음");
+            throw new BaseException(CustomMessage.EXPIRED_TOKEN_NOT_EXIST);
+        }
         refreshToken = parseBearerToken(request, "refresh-token");
-        if (refreshToken == null) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
             System.out.println("리프레시 토큰 없음");
             throw new BaseException(CustomMessage.REFRESH_TOKEN_NOT_EXIST);
         }
-        String oldAccessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION);
+
 
         log.info("===============================================================");
         log.info("oldAccessToken : {}", oldAccessToken);
