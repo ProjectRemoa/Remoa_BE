@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class ResInquiryDto {
 
     @Schema(description = "문의 ID", example = "1")
-    private Long inquiryId;
+    private Long id;
 
     @Schema(description = "작성자", example = "Alice Smith")
     private String author;
@@ -39,7 +39,7 @@ public class ResInquiryDto {
     private LocalDateTime modifiedTime; // 수정 시각
 
     public ResInquiryDto(Inquiry inquiry) {
-        this.inquiryId = inquiry.getInquiryId();
+        this.id = inquiry.getInquiryId();
         this.author = inquiry.getAuthor();
         this.title = inquiry.getTitle();
         this.postingTime = inquiry.getPostingTime().toLocalDate();

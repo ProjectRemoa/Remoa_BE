@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class ResNoticeDto {
 
     @Schema(description = "게시물 ID", example = "1")
-    private Long noticeId;
+    private Long id;
 
     @Schema(description = "작성자", example = "John Doe")
     private String author;
@@ -36,7 +36,7 @@ public class ResNoticeDto {
     private LocalDateTime modifiedTime; // 수정 시각
 
     public ResNoticeDto(Notice entity) {
-        this.noticeId = entity.getNoticeId();
+        this.id = entity.getNoticeId();
         this.author = entity.getAuthor();
         this.title = entity.getTitle();
         this.postingTime = entity.getPostingTime().toLocalDate();

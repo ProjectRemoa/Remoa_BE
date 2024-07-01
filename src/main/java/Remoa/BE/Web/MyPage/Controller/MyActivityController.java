@@ -284,7 +284,7 @@ public class MyActivityController {
 
         /**
          * 조회한 가장 최근에 작성한 댓글들을 dto로 mapping
-         * 하나의 게시물에 여러 코멘트 모두 단 경우 하나의 최신 하나만 보여주도록 구현
+         * 하나의 게시물에 여러 코멘트 단 경우 하나의 정렬 asc, desc에 따라 가장 오래된 것 또는 최신의 것 하나만 보여주도록 구현
          */
         List<ResMyCommentDto> contents = comments.stream()
                 .map(comment -> {
