@@ -77,7 +77,9 @@ public class FeedbackService {
 
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
-        ;
+        if (feedbackRepository.existsByMemberAndPostAndPageNumber(member, post, pageNumber)) {
+            throw new BaseException(CustomMessage.PAGE_FEEDBACK_ALREADY_EXISTS);
+        }
 
         LocalDateTime time = LocalDateTime.now();
 

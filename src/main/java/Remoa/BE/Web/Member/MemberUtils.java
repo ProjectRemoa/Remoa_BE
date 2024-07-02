@@ -81,6 +81,14 @@ public class MemberUtils {
                 .sorted(Comparator.comparing(entry -> entry.getValue().get(0).getFeedbackTime()))
                 .toList();
 
+        // 각 그룹 내의 피드백을 pageNumber 순으로 정렬
+        sortedFeedbacksByMember.forEach(entry ->
+                entry.setValue(entry.getValue().stream()
+                        .sorted(Comparator.comparing(Feedback::getPageNumber))
+                        .collect(Collectors.toList()))
+        );
+
+
 
 
         List<ResFeedbackDto2> resFeedbackDtos = sortedFeedbacksByMember.stream()
