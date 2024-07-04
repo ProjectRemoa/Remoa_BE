@@ -143,7 +143,7 @@ public class CommentReplyController {
     @Operation(summary = "코멘트 대댓글 좋아요 Test Completed", description = "코멘트 대댓글에 좋아요를 누릅니다.")
     public ResponseEntity<ResCommentReplyLikeDto> likeComment(@PathVariable("reply_id") Long replyId,
                                                               @AuthenticationPrincipal MemberDetails memberDetails) {
-        log.info("EndPoint Post /comment/{comment_id}/like");
+        log.info("EndPoint Post /reference/comment_reply/{reply_id}/like");
 
         Long memberId = memberDetails.getMemberId();
         Member member = memberService.findOne(memberId);
