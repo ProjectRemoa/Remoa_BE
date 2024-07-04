@@ -47,8 +47,8 @@ public class Inquiry {
 
     private int view;
 
-    public void addInquiryViewCount(int viewCount) {
-        this.view = viewCount + 1;
+    public void addViewCount() {
+        this.view++;
     }
 
     public void updateInquiry(ReqInquiryDto updateDto) {
@@ -58,4 +58,6 @@ public class Inquiry {
         this.modifiedTime = LocalDateTime.now();
         // 필요한 경우 다른 필드도 업데이트할 수 있습니다.
     }
+
+
 }

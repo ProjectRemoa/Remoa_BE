@@ -1,11 +1,11 @@
 package Remoa.BE.Web.Inquiry.Controller;
 
+import Remoa.BE.Web.Inquiry.Dto.Req.ReqInquiryDto;
+import Remoa.BE.Web.Inquiry.Dto.Res.ResInquiryDetailDto;
 import Remoa.BE.Web.Inquiry.Dto.Res.ResInquiryPaging;
+import Remoa.BE.Web.Inquiry.Service.InquiryService;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Member.Service.MemberService;
-import Remoa.BE.Web.Inquiry.Dto.Req.ReqInquiryDto;
-import Remoa.BE.Web.Inquiry.Dto.Res.ResAllInquiryDto;
-import Remoa.BE.Web.Inquiry.Service.InquiryService;
 import Remoa.BE.config.auth.MemberDetails;
 import Remoa.BE.exception.CustomMessage;
 import Remoa.BE.exception.response.BaseException;
@@ -28,8 +28,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-
 @Tag(name = "문의 기능 Test Completed", description = "문의 기능 API")
 @RestController
 @RequiredArgsConstructor
@@ -47,7 +45,7 @@ public class InquiryController {
     @PostMapping("/inquiry")
     @Operation(summary = "문의 등록 Test Completed", description = "문의를 등록합니다.")
     public ResponseEntity<Void> postInquiry(@Validated @RequestBody ReqInquiryDto inquiryDto,
-                                              @AuthenticationPrincipal MemberDetails memberDetails) {
+                                            @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Post /inquiry");
 
         Member myMember = memberService.findOne(memberDetails.getMemberId());
@@ -65,8 +63,8 @@ public class InquiryController {
     @PutMapping("/inquiry/{id}")
     @Operation(summary = "문의 수정 Test Completed", description = "문의를 수정합니다.")
     public ResponseEntity<Void> updateInquiry(@PathVariable("id") Long inquiryId,
-                                                @Validated @RequestBody ReqInquiryDto inquiryDto,
-                                                @AuthenticationPrincipal MemberDetails memberDetails) {
+                                              @Validated @RequestBody ReqInquiryDto inquiryDto,
+                                              @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Put /inquiry/{id}");
 
         Member myMember = memberService.findOne(memberDetails.getMemberId());
@@ -118,7 +116,6 @@ public class InquiryController {
 
 
     /**
-     *
      * 리턴할 경우 문의 답변도 함께 리턴해야 하는지 결정해야 함
      */
     @ApiResponses(value = {
@@ -127,21 +124,13 @@ public class InquiryController {
     })
     @GetMapping("/inquiry/view")
     @Operation(summary = "문의 상세 조회 Test Completed", description = "특정 문의의 상세 정보를 조회합니다.")
-    public ResponseEntity<BaseResponse<ResAllInquiryDto>> getInquiryDetail(@RequestParam int view,
-                                                                           HttpServletRequest request) {
+    public ResponseEntity<BaseResponse<ResInquiryDetailDto>> getInquiryDetail(@RequestParam("view") int inquiryId,
+                                                                              HttpSession session) {
         log.info("EndPoint Get /inquiry/view");
 
-        HttpSession session = request.getSession();
-        String sessionKey = "InquiryViewed_" + view;
-
-        if (session.getAttribute(sessionKey) == null) {
-            inquiryService.inquiryViewCount(view);
-            session.setAttribute(sessionKey, true);
-        }
-
-        BaseResponse<ResAllInquiryDto> response = new BaseResponse<>(CustomMessage.OK, inquiryService.getInquiryView(view));
+        BaseResponse<ResInquiryDetailDto> response = new BaseResponse<>(CustomMessage.OK, inquiryService.getInquiryView(inquiryId, session));
         return ResponseEntity.ok(response);
-        // return successResponse(CustomMessage.OK, inquiryService.getInquiryView(view));
-
     }
+
+
 }

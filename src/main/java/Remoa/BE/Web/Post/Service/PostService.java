@@ -8,6 +8,9 @@ import Remoa.BE.Web.Post.Domain.PostLike;
 import Remoa.BE.Web.Post.Domain.PostScrap;
 import Remoa.BE.Web.Post.Dto.Request.UploadPostForm;
 import Remoa.BE.Web.Post.Repository.*;
+import Remoa.BE.exception.CustomMessage;
+import Remoa.BE.exception.response.BaseException;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -61,10 +64,21 @@ public class PostService {
     }
 
     @Transactional
-    public Post findOneViewPlus(Long postId) {
-        Optional<Post> findPost = postRepository.findOne(postId);
-        findPost.ifPresent(post -> post.setViews(post.getViews() + 1));
-        return findPost.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Post not found"));
+    public Post findOneViewPlus(Long postId, HttpSession session) {
+        Post post = postRepository.findOne(postId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
+        handleViewCount(post, session);
+        return post;
+    }
+
+    private void handleViewCount(Post post, HttpSession session) {
+        Long postId = post.getPostId();
+        String sessionKey = "PostViewed_" + postId;
+        log.info("sessionKey = {}", sessionKey);
+
+        if (session.getAttribute(sessionKey) == null) {
+            post.addViewCount();
+            session.setAttribute(sessionKey, true);
+        }
     }
 
 //    public int findScrapCount(Long postId){

@@ -3,14 +3,15 @@ package Remoa.BE.Web.Notice.Service;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Notice.Dto.Req.ReqNoticeDto;
 import Remoa.BE.Web.Notice.Dto.Res.NoticeResponseDto;
-import Remoa.BE.Web.Notice.Dto.Res.ResAllNoticeDto;
+import Remoa.BE.Web.Notice.Dto.Res.ResNoticeDetailDto;
 import Remoa.BE.Web.Notice.Dto.Res.ResNoticeDto;
 import Remoa.BE.Web.Notice.Repository.NoticeRepository;
 import Remoa.BE.Web.Notice.domain.Notice;
 import Remoa.BE.exception.CustomMessage;
 import Remoa.BE.exception.response.BaseException;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
@@ -68,19 +70,25 @@ public class NoticeService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
-    public ResAllNoticeDto getNoticeView(int view) {
-        return noticeRepository.findById((long) view).map(ResAllNoticeDto::new).orElseThrow(() ->
+    @Transactional
+    public ResNoticeDetailDto getNoticeView(int noticeId, HttpSession session) {
+        Notice notice = noticeRepository.findById((long) noticeId).orElseThrow(() ->
                 new BaseException(CustomMessage.NO_ID));
+
+        handleViewCount(notice, session);
+        return new ResNoticeDetailDto(notice);
     }
 
-    @Transactional
-    public void NoticeViewCount(int view) {
-        Notice notice = noticeRepository.findById((long) view).orElseThrow(() ->
-                new BaseException(CustomMessage.NO_ID));
-        notice.addNoticeViewCount();
-        noticeRepository.save(notice);
+    private void handleViewCount(Notice notice, HttpSession session) {
+        Long noticeId = notice.getNoticeId();
 
+        String sessionKey = "NoticeViewed" + noticeId;
+        log.info("sessionKey = {}", sessionKey);
+
+        if (session.getAttribute(sessionKey) == null) {
+            notice.addViewCount();
+            session.setAttribute(sessionKey, true);
+        }
     }
 
     @Transactional

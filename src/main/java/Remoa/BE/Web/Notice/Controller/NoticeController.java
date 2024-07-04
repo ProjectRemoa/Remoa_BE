@@ -4,7 +4,7 @@ import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Member.Service.MemberService;
 import Remoa.BE.Web.Notice.Dto.Req.ReqNoticeDto;
 import Remoa.BE.Web.Notice.Dto.Res.NoticeResponseDto;
-import Remoa.BE.Web.Notice.Dto.Res.ResAllNoticeDto;
+import Remoa.BE.Web.Notice.Dto.Res.ResNoticeDetailDto;
 import Remoa.BE.Web.Notice.Service.NoticeService;
 import Remoa.BE.config.auth.MemberDetails;
 import Remoa.BE.exception.CustomMessage;
@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,11 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-
-import java.util.Date;
 
 @Tag(name = "공지 기능 Test Completed", description = "공지 기능 API")
 @RestController
@@ -124,19 +120,12 @@ public class NoticeController {
     })
     @GetMapping("/notice/view")
     @Operation(summary = "공지 상세 조회 Test Completed", description = "특정 공지의 상세 정보를 조회합니다.")
-    public ResponseEntity<BaseResponse<ResAllNoticeDto>> getNoticeDetail(@RequestParam int view,
-                                                                         HttpServletRequest request) {
+    public ResponseEntity<BaseResponse<ResNoticeDetailDto>> getNoticeDetail(@RequestParam("view") int noticeId,
+                                                                         HttpSession session) {
         log.info("EndPoint Get /notice/view");
 
-        HttpSession session = request.getSession();
-        String sessionKey = "NoticeViewed_" + view;
 
-        if (session.getAttribute(sessionKey) == null) { // 조회하지 않은 경우
-            noticeService.NoticeViewCount(view); // 조회수 증가
-            session.setAttribute(sessionKey, true);
-        }
-
-        BaseResponse<ResAllNoticeDto> response = new BaseResponse<>(CustomMessage.OK, noticeService.getNoticeView(view));
+        BaseResponse<ResNoticeDetailDto> response = new BaseResponse<>(CustomMessage.OK, noticeService.getNoticeView(noticeId,session));
         return ResponseEntity.ok(response);
         // return successResponse(CustomMessage.OK, noticeService.getNoticeView(view));
     }

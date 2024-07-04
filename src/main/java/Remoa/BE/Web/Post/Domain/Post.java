@@ -56,7 +56,7 @@ public class Post {
      * 유튜브 링크
      */
     @Builder.Default
-    private String youtubeLink="";
+    private String youtubeLink = "";
 
     /**
      * 참여한 공모전의 마감 기한
@@ -120,7 +120,6 @@ public class Post {
     private List<CommentFeedback> commentFeedbacks = new ArrayList<>();
 
 
-
     @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = LAZY)
     //@OnDelete(action = OnDeleteAction.CASCADE)
@@ -145,4 +144,9 @@ public class Post {
 
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
+
+
+    public void addViewCount() {
+        this.views++;
+    }
 }

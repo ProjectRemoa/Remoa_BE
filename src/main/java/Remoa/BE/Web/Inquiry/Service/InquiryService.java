@@ -1,29 +1,30 @@
 package Remoa.BE.Web.Inquiry.Service;
 
-import Remoa.BE.Web.Inquiry.Dto.Res.ResInquiryPaging;
-import Remoa.BE.Web.Member.Domain.Member;
-import Remoa.BE.Web.Inquiry.Dto.Req.ReqInquiryDto;
-import Remoa.BE.Web.Inquiry.Dto.Res.ResAllInquiryDto;
-import Remoa.BE.Web.Inquiry.Dto.Res.ResInquiryDto;
-import Remoa.BE.Web.Inquiry.Repository.InquiryRepository;
 import Remoa.BE.Web.Inquiry.Domain.Inquiry;
-import Remoa.BE.Web.Notice.domain.Notice;
+import Remoa.BE.Web.Inquiry.Dto.Req.ReqInquiryDto;
+import Remoa.BE.Web.Inquiry.Dto.Res.ResInquiryDetailDto;
+import Remoa.BE.Web.Inquiry.Dto.Res.ResInquiryDto;
+import Remoa.BE.Web.Inquiry.Dto.Res.ResInquiryPaging;
+import Remoa.BE.Web.Inquiry.Repository.InquiryRepository;
+import Remoa.BE.Web.Member.Domain.Member;
+import Remoa.BE.Web.Post.Domain.Post;
 import Remoa.BE.exception.CustomMessage;
 import Remoa.BE.exception.response.BaseException;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class InquiryService {
 
     private static final int INQUIRY_NUMBER = 5;
@@ -76,22 +77,28 @@ public class InquiryService {
         return resInquiryPaging;
     }
 
-    public ResAllInquiryDto getInquiryView(int view) {
-        return inquiryRepository.findById((long) view).map(ResAllInquiryDto::new).orElseThrow(() ->
+    public ResInquiryDetailDto getInquiryView(int inquiryId, HttpSession session) {
+        Inquiry inquiry = inquiryRepository.findById((long) inquiryId).orElseThrow(() ->
                 new BaseException(CustomMessage.NO_ID));
+        handleViewCount(inquiry, session);
+        return new ResInquiryDetailDto(inquiry);
     }
 
-    @Transactional
-    public void inquiryViewCount(int view) {
-        Inquiry inquiry = inquiryRepository.findById((long) view).orElseThrow(() ->
-                new BaseException(CustomMessage.NO_ID));
-        inquiry.addInquiryViewCount(inquiry.getView());
-        inquiryRepository.save(inquiry);
-
-    }
 
     @Transactional
     public void modifying_Inquiry_NickName(String newNick, String oldNick) {
         inquiryRepository.modifyingInquiryAuthor(newNick, oldNick);
+    }
+
+    private void handleViewCount(Inquiry inquiry, HttpSession session) {
+        Long inquiryId = inquiry.getInquiryId();
+
+        String sessionKey = "InquiryViewed" + inquiryId;
+        log.info("sessionKey = {}", sessionKey);
+
+        if (session.getAttribute(sessionKey) == null) {
+            inquiry.addViewCount();
+            session.setAttribute(sessionKey, true);
+        }
     }
 }

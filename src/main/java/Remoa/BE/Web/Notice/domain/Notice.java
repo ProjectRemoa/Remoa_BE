@@ -43,8 +43,8 @@ public class Notice {
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
 
-    public void addNoticeViewCount() {
-        this.view = this.view + 1;
+    public void addViewCount() {
+        this.view++;
     }
 
     public void updateNotice(ReqNoticeDto updateDto, String author) {

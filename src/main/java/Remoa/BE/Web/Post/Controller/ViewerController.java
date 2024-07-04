@@ -13,6 +13,7 @@ import Remoa.BE.exception.CustomMessage;
 import Remoa.BE.exception.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,8 @@ public class ViewerController {
     @GetMapping("/reference/{reference_id}")
     @Operation(summary = "레퍼런스 조회 Test Completed", description = "특정 레퍼런스의 상세 정보를 조회합니다.")
     public ResponseEntity<BaseResponse<ResReferenceViewerDto>> referenceViewer(@PathVariable("reference_id") Long referenceId,
-                                                                               @AuthenticationPrincipal MemberDetails memberDetails) {
+                                                                               @AuthenticationPrincipal MemberDetails memberDetails,
+                                                                               HttpSession session) {
 
         log.info("EndPoint Get /reference/{reference_id}");
 
@@ -50,7 +52,7 @@ public class ViewerController {
         }
 
         // query parameter로 넘어온 id값의 post 조회
-        Post post = postService.findOneViewPlus(referenceId);
+        Post post = postService.findOneViewPlus(referenceId, session);
 
         // 조회한 post의 comment 조회 및 각 comment에 대한 commentReply 조회 -> 이후 ResCommentDto로 매핑
         List<ResCommentDto> comments = memberUtils.commentList(post.getPostId(), myMember);
