@@ -64,9 +64,6 @@ public class Feedback {
     private Integer likeCount = 0;
 
 
-    @OneToMany(mappedBy = "feedback", cascade = {CascadeType.REMOVE}, fetch = LAZY)
-    //@OnDelete(action = OnDeleteAction.CASCADE)
-    private List<FeedbackLike> feedbackLikes;
 
 
     @OneToMany(mappedBy = "feedback", cascade = {CascadeType.REMOVE}, fetch = LAZY)

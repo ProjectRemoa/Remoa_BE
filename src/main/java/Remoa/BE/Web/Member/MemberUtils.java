@@ -8,9 +8,11 @@ import Remoa.BE.Web.Comment.Service.CommentReplyService;
 import Remoa.BE.Web.Comment.Service.CommentService;
 import Remoa.BE.Web.Feedback.Domain.Feedback;
 import Remoa.BE.Web.Feedback.Domain.FeedbackReply;
+import Remoa.BE.Web.Feedback.Domain.FeedbackMemberLog;
 import Remoa.BE.Web.Feedback.Dto.ResFeedbackDto2;
 import Remoa.BE.Web.Feedback.Dto.ResFeedbackInfoDto;
 import Remoa.BE.Web.Feedback.Dto.ResFeedbackReplyDto;
+import Remoa.BE.Web.Feedback.Repository.FeedbackMemberLogRepository;
 import Remoa.BE.Web.Feedback.Service.FeedbackReplyService;
 import Remoa.BE.Web.Feedback.Service.FeedbackService;
 import Remoa.BE.Web.Member.Domain.Member;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -58,8 +61,11 @@ public class MemberUtils {
         return myMember != null && commentReplyService.findCommentReplyLike(myMember, commentReply).isPresent();
     }
 
-    private Boolean isLikedFeedback(Member myMember, Feedback feedback) {
-        return myMember != null && feedbackService.findFeedbackLike(myMember, feedback).isPresent();
+    /**
+     * 내가 피드백 단 유저에 좋아요를 눌렀는지 여부
+     */
+    private Boolean isLikedFeedbackMember(Member myMember, FeedbackMemberLog feedbackMemberLog) {
+        return myMember != null && feedbackService.findFeedbackMemberLike(myMember, feedbackMemberLog).isPresent();
     }
 
     private Boolean isLikedFeedbackReply(Member myMember, FeedbackReply feedbackReply) {
@@ -69,7 +75,7 @@ public class MemberUtils {
     // 추가적인 유틸리티 메서드들...
 
     public List<ResFeedbackDto2> feedbackList(Long postId, Member myMember) {
-
+        Post post = postService.findOne(postId);
         List<Feedback> feedbacks = feedbackService.findAllFeedbacksOfPost(postId);
 
         // 피드백을 멤버별로 그룹화
@@ -88,12 +94,9 @@ public class MemberUtils {
                         .collect(Collectors.toList()))
         );
 
-
-
-
         List<ResFeedbackDto2> resFeedbackDtos = sortedFeedbacksByMember.stream()
                 .map(entry -> {
-                    Member member = entry.getKey();
+                    Member feedbackMember = entry.getKey(); // 피드백 작성자
                     List<Feedback> memberFeedbacks = entry.getValue();
 
                     List<ResFeedbackInfoDto> feedbackInfos = memberFeedbacks.stream()
@@ -106,14 +109,17 @@ public class MemberUtils {
                                         .collect(Collectors.toList());
 
                                 return new ResFeedbackInfoDto(feedback,
-                                        isLikedFeedback(myMember, feedback),
                                         resReplies);
                             })
                             .collect(Collectors.toList());
 
-                    ResMemberInfoDto memberInfoDto = new ResMemberInfoDto(member, isMyMemberFollowMember(myMember, member));
+                    ResMemberInfoDto memberInfoDto = new ResMemberInfoDto(feedbackMember, isMyMemberFollowMember(myMember, feedbackMember));
+                    FeedbackMemberLog feedbackMemberLog = feedbackService.findFeedbackMemberLog(feedbackMember, post);
 
-                    return new ResFeedbackDto2(memberInfoDto, feedbackInfos);
+                    return new ResFeedbackDto2(memberInfoDto,
+                            feedbackMemberLog,
+                            isLikedFeedbackMember(myMember, feedbackMemberLog),
+                            feedbackInfos);
                 })
                 .collect(Collectors.toList());
 

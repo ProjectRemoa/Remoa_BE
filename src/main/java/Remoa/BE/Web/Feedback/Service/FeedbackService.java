@@ -4,6 +4,8 @@ import Remoa.BE.Web.Comment.Domain.Comment;
 import Remoa.BE.Web.CommentFeedback.Domain.CommentFeedback;
 import Remoa.BE.Web.Feedback.Domain.Feedback;
 import Remoa.BE.Web.Feedback.Domain.FeedbackLike;
+import Remoa.BE.Web.Feedback.Domain.FeedbackMemberLog;
+import Remoa.BE.Web.Feedback.Repository.FeedbackMemberLogRepository;
 import Remoa.BE.Web.Post.Domain.Post;
 import Remoa.BE.Web.Feedback.Repository.FeedbackLikeRepository;
 import Remoa.BE.Web.Feedback.Repository.FeedbackRepository;
@@ -26,6 +28,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static Remoa.BE.utill.Constant.CONTENT_PAGE_SIZE;
@@ -38,13 +41,13 @@ public class FeedbackService {
     private final FeedbackRepository feedbackRepository;
     private final FeedbackLikeRepository feedbackLikeRepository;
     private final PostRepository postRepository;
-    private final PostService postService;
     private final CommentFeedbackService commentFeedbackService;
+    private final FeedbackMemberLogRepository feedbackMemberLogRepository;
 
     @Transactional
     public Feedback findOne(Long feedbackId) {
         Optional<Feedback> feedback = feedbackRepository.findOne(feedbackId);
-        return feedback.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feedback not found"));
+        return feedback.orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
     }
 
     public Page<Feedback> getMyFeedback(int page, Member member, String sortDirection) {
@@ -68,21 +71,29 @@ public class FeedbackService {
     }
 
 
-    public Optional<FeedbackLike> findFeedbackLike(Member member, Feedback feedback) {
-        return feedbackLikeRepository.findByMemberAndFeedback(member, feedback);
+    public Optional<FeedbackLike> findFeedbackMemberLike(Member member, FeedbackMemberLog feedbackMemberLog) {
+        return feedbackLikeRepository.findByMemberAndFeedbackMemberLog(member, feedbackMemberLog);
+    }
+
+    public FeedbackMemberLog findFeedbackMemberLog(Member member, Post post) {
+        return feedbackMemberLogRepository.findByMemberAndPost(member, post)
+                .orElseThrow(() -> new BaseException(CustomMessage.POST_MEMBER_FEEDBACK_NOT_EXIST));
     }
 
     @Transactional
     public void registerFeedback(Member member, String content, Long postId, Integer pageNumber) {
 
-
         Post post = postRepository.findById(postId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
+
         if (feedbackRepository.existsByMemberAndPostAndPageNumber(member, post, pageNumber)) {
             throw new BaseException(CustomMessage.PAGE_FEEDBACK_ALREADY_EXISTS);
         }
 
-        LocalDateTime time = LocalDateTime.now();
+        if (!feedbackMemberLogRepository.existsByMemberAndPost(member, post)) { // 포스트멤버피드백 없으면 등록
+            feedbackMemberLogRepository.save(new FeedbackMemberLog(member, post));
+        }
 
+        LocalDateTime time = LocalDateTime.now();
         Feedback feedbackObj = Feedback.createFeedback(post, member, pageNumber, content, time);
 
         feedbackRepository.saveFeedback(feedbackObj);
@@ -92,40 +103,53 @@ public class FeedbackService {
     }
 
     @Transactional
-    public void modifyFeedback(String content, Long feedbackId) {
+    public void modifyFeedback(Member member, Post post, String content, Long feedbackId) {
         Feedback feedbackObj = findOne(feedbackId);
-        feedbackObj.setContent(content);
+        if (!Objects.equals(feedbackObj.getMember().getMemberId(), member.getMemberId())) { // 자신이 적은 피드백 여부 확인
+            throw new BaseException(CustomMessage.CAN_NOT_ACCESS);
+        }
 
-        //commentFeedbackService.findFeedback(feedbackObj).getFeedback().setContent(content);
+        feedbackObj.setContent(content);
         commentFeedbackService.findFeedback(feedbackObj).setFeedback(feedbackObj);
 
-        feedbackRepository.updateFeedback(feedbackObj);
+   //     feedbackRepository.updateFeedback(feedbackObj); //알아서 수정 됨
     }
 
     @Transactional
-    public void deleteFeedback(Long feedbackId) {
+    public void deleteFeedback(Member member, Post post, Long feedbackId) {
         Feedback feedbackObj = findOne(feedbackId);
+
+        if (!Objects.equals(feedbackObj.getMember().getMemberId(), member.getMemberId())) { // 자신이 적은 피드백 여부 확인
+            throw new BaseException(CustomMessage.CAN_NOT_ACCESS);
+        }
 
         CommentFeedback feedbackOfCommentFeedback = commentFeedbackService.findFeedback(feedbackObj);
         feedbackOfCommentFeedback.setDeleted(true);
+
         feedbackRepository.delete(feedbackObj);
+        if (feedbackRepository.existsByMemberAndPost(member, post)) { //더이상 해당 포스트에 작성한 피드백 존재하지 않는다면
+            feedbackMemberLogRepository.deleteByMemberAndPost(member, post); // 포스트멤버피드백로그 삭제
+        }
     }
 
     @Transactional
-    public void likeFeedback(Member myMember, Long feedbackId) {
-        Feedback feedbackObj = findOne(feedbackId);
-        Integer feedbackLikeCount = feedbackObj.getLikeCount();
+    public int likeFeedback(Member myMember, Post post , Member feedbackMember) {
+
+        FeedbackMemberLog feedbackMemberLog = feedbackMemberLogRepository.findByMemberAndPost(feedbackMember, post)
+                .orElseThrow(() -> new BaseException(CustomMessage.POST_MEMBER_FEEDBACK_NOT_EXIST)); //포스트에 피드백 없으면 에러
 
         //FeedbackLike를 db에서 조회해보고 조회 결과가 null이면 like+=1, FeedbackLike 엔티티 추가
         // null이 아니면 like -=1, 조회결과인 해당 FeedbackLike 엔티티 삭제
-        Optional<FeedbackLike> feedbackLike = findFeedbackLike(myMember, feedbackObj);
+        Optional<FeedbackLike> feedbackLike = findFeedbackMemberLike(myMember, feedbackMemberLog);
         if (feedbackLike.isEmpty()) {
-            feedbackObj.setLikeCount(feedbackLikeCount + 1); // 좋아요 수 1 증가
-            FeedbackLike feedbackLikeObj = FeedbackLike.createFeedbackLike(myMember, feedbackObj);
+            FeedbackLike feedbackLikeObj = FeedbackLike.createFeedbackLike(myMember, feedbackMemberLog); // 좋아요 생성
+            feedbackMemberLog.increaseLikeCount(); // 대상 피드백 멤버 좋아요 수 1 증가
             feedbackLikeRepository.save(feedbackLikeObj);
+            return feedbackMemberLog.getLikeCount();
         } else {
-            feedbackObj.setLikeCount(feedbackLikeCount - 1); // 좋아요 수 1 차감
+            feedbackMemberLog.decreaseLikeCount();    // 좋아요 수 1 차감
             feedbackLikeRepository.deleteById(feedbackLike.get().getFeedbackLikeId()); // db에서 삭제
+            return feedbackMemberLog.getLikeCount();
         }
     }
 }

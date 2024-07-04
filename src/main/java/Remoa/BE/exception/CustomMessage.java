@@ -43,6 +43,7 @@ public enum CustomMessage {
 
     BAD_PAGE_NUM(HttpStatus.BAD_REQUEST, "피드백 등록시 페이지 넘버 오류", "존재하지 않는 페이지에 피드백을 등록하려 합니다"),
     PAGE_FEEDBACK_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "피드백 등록시 페이지 중복 등록 오류", "해당 페이지에 이미 피드백이 존재합니다"),
+    POST_MEMBER_FEEDBACK_NOT_EXIST(HttpStatus.BAD_REQUEST, "해당 멤버는 피드백 없음", "해당 멤버는 피드백 해당 포스트에 피드백을 달지 않았습니다"),
 
     PAGE_NUM_OVER(HttpStatus.BAD_REQUEST, "레퍼런스 조회시 페이지 넘버 오류", "올바르지 않는 페이지 번호입니다."),
 

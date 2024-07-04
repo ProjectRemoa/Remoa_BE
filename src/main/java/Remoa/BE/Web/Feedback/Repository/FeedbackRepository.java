@@ -13,6 +13,7 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long>, Feedb
     Page<Feedback> findByMemberOrderByFeedbackTimeDesc(Pageable pageable, Member member);
 
     boolean existsByMemberAndPostAndPageNumber(Member member, Post post, Integer pageNumber);
+    boolean existsByMemberAndPost(Member member, Post post);
 
     @Query("SELECT f FROM Feedback f " +
             "INNER JOIN FETCH f.post p " +

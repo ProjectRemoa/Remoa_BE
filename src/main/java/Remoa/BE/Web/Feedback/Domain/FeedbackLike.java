@@ -27,12 +27,12 @@ public class FeedbackLike {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feedback_id")
-    private Feedback feedback;
+    @JoinColumn(name = "feedback_member_log_id")
+    private FeedbackMemberLog feedbackMemberLog;
 
-    public static FeedbackLike createFeedbackLike(Member member, Feedback feedback) {
+    public static FeedbackLike createFeedbackLike(Member member, FeedbackMemberLog feedbackMemberLog) {
         FeedbackLike feedbackLike = new FeedbackLike();
-        feedbackLike.setFeedback(feedback);
+        feedbackLike.setFeedbackMemberLog(feedbackMemberLog);
         feedbackLike.setMember(member);
 
         return feedbackLike;
