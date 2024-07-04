@@ -47,12 +47,12 @@ public class FeedbackService {
         return feedback.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feedback not found"));
     }
 
-    public Page<Feedback> findMyFeedback(int page, Member member, String sortDirection) {
+    public Page<Feedback> getMyFeedback(int page, Member member, String sortDirection) {
         Pageable pageable = PageRequest.of(page, CONTENT_PAGE_SIZE);
-        if (sortDirection.equalsIgnoreCase("asc")) {
-            return feedbackRepository.findOldestFeedback(member, pageable);
+        if (sortDirection.equalsIgnoreCase("desc")) {
+            return feedbackRepository.findMyFeedback(member, pageable, "desc");
         } else {
-            return feedbackRepository.findNewestFeedback(member, pageable);
+            return feedbackRepository.findMyFeedback(member, pageable, "asc");
         }
     }
 

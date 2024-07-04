@@ -1,15 +1,28 @@
 package Remoa.BE.Web.Feedback.Repository;
 
+import Remoa.BE.Web.Comment.Domain.Comment;
+import Remoa.BE.Web.Comment.Domain.QComment;
+import Remoa.BE.Web.Feedback.Domain.QFeedback;
+import Remoa.BE.Web.Member.Domain.QMember;
 import Remoa.BE.Web.Post.Domain.Post;
 import Remoa.BE.Web.Feedback.Domain.Feedback;
 import Remoa.BE.Web.Member.Domain.FeedbackBookmark;
 import Remoa.BE.Web.Feedback.Domain.FeedbackLike;
 import Remoa.BE.Web.Member.Domain.Member;
+import Remoa.BE.Web.Post.Domain.QPost;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.EntityManager;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -123,5 +136,54 @@ public class FeedbackRepositoryCustomImpl implements FeedbackRepositoryCustom {
         em.createQuery("delete from Feedback f where f.parentFeedback = :feedback")
                 .setParameter("feedback", feedback)
                 .executeUpdate();
+    }
+
+
+
+    private final JPAQueryFactory jpaQueryFactory;
+    QFeedback feedback = QFeedback.feedback;
+    QMember member = QMember.member;
+    QPost post = QPost.post;
+
+    @Override
+    public Page<Feedback> findMyFeedback(Member myMember, Pageable pageable, String sort) {
+
+
+        // Subquery to find the latest commented time per post by the member
+        JPAQuery<LocalDateTime> subQuery = jpaQueryFactory
+                .select(feedback.feedbackTime.max())
+                .from(feedback)
+                .where(feedback.post.postId.eq(post.postId)
+                        .and(feedback.member.eq(myMember)));
+
+        // Main query to fetch comments with latest commented time per post
+        JPAQuery<Feedback> query = jpaQueryFactory
+                .select(feedback)
+                .from(feedback)
+                .innerJoin(feedback.post, post).fetchJoin()
+                .innerJoin(feedback.member, member).fetchJoin()
+                .where(feedback.member.eq(myMember)
+                        .and(feedback.feedbackTime.eq(subQuery)));
+
+        // Apply sorting based on the sort parameter
+        OrderSpecifier<?> orderSpecifier;
+        if ("asc".equalsIgnoreCase(sort)) {
+            orderSpecifier = feedback.feedbackTime.asc();
+        } else {
+            orderSpecifier = feedback.feedbackTime.desc();
+        }
+        query.orderBy(orderSpecifier);
+
+        // Fetch total count for pagination
+        long total = query.fetchCount();
+
+        // Apply pagination to the query
+        List<Feedback> fetch = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // Convert to Page
+        return new PageImpl<>(fetch, pageable, total);
     }
 }

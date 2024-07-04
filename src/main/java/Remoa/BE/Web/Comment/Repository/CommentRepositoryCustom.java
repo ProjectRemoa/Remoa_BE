@@ -5,6 +5,9 @@ import Remoa.BE.Web.Comment.Domain.Comment;
 import Remoa.BE.Web.Member.Domain.CommentBookmark;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Post.Domain.Post;
+import com.querydsl.core.Tuple;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,4 +29,6 @@ public interface CommentRepositoryCustom {
     List<Comment> findAllByMember(Member member);
     void deleteCommentByMember(Member member);
     void deleteChildCommentByParentFeedback(Comment comment);
+
+    Page<Comment> findMyComment(Member member, Pageable pageable, String sort);
 }

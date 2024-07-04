@@ -11,14 +11,17 @@ import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Member.Domain.QMember;
 import Remoa.BE.Web.Post.Domain.Category;
 import Remoa.BE.Web.Post.Domain.QPost;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +36,49 @@ public class CommentFeedbackCustomRepositoryImpl implements CommentFeedbackCusto
     QComment comment = QComment.comment;
     QFeedback feedback = QFeedback.feedback;
     QPost post = QPost.post;
+
+    @Override
+    public Page<CommentFeedback> findMyCommentOrFeedback(Member myMember, Pageable pageable, String sort) {
+
+        // Subquery to find the latest commented time per post by the member
+        JPAQuery<LocalDateTime> subQuery = jpaQueryFactory
+                .select(commentFeedback.time.max())
+                .from(commentFeedback)
+                .where(commentFeedback.post.postId.eq(post.postId)
+                        .and(commentFeedback.member.eq(myMember)));
+
+        // Main query to fetch comments with latest commented time per post
+        JPAQuery<CommentFeedback> query = jpaQueryFactory
+                .select(commentFeedback)
+                .from(commentFeedback)
+                .innerJoin(commentFeedback.post, post).fetchJoin()
+                .leftJoin(commentFeedback.comment, comment).fetchJoin()
+                .leftJoin(commentFeedback.feedback, feedback).fetchJoin()
+                .innerJoin(commentFeedback.member, member).fetchJoin()
+                .where(commentFeedback.member.eq(myMember)
+                        .and(commentFeedback.time.eq(subQuery)));
+
+        // Apply sorting based on the sort parameter
+        OrderSpecifier<?> orderSpecifier;
+        if ("asc".equalsIgnoreCase(sort)) {
+            orderSpecifier = commentFeedback.time.asc();
+        } else {
+            orderSpecifier = commentFeedback.time.desc();
+        }
+        query.orderBy(orderSpecifier);
+
+        // Fetch total count for pagination
+        long total = query.fetchCount();
+
+        // Apply pagination to the query
+        List<CommentFeedback> fetch = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // Convert to Page
+        return new PageImpl<>(fetch, pageable, total);
+    }
 
     @Override
     public Optional<CommentFeedback> findByMemberOrderByTime(Member member) {

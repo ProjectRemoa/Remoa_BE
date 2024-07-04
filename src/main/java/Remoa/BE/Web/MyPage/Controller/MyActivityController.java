@@ -194,10 +194,10 @@ public class MyActivityController {
     })
     @GetMapping("/user/comment-feedback")
     @Operation(summary = "내가 작성한 코멘트/피드백 조회 Test Completed", description = "내가 작성한 최신 코멘트/피드백들을 조회합니다." +
-            "<br> asc  : 오래된순(default)" +
-            "<br> desc  : 최신순")
+            "<br> asc  : 오래된순" +
+            "<br> desc  : 최신순(default)")
     public ResponseEntity<BaseResponse<ResMyCommentFeedbackPaging>> myCommentFeedback(@RequestParam(name = "page", defaultValue = "1", required = false) int pageNum,
-                                                                                      @RequestParam(name = "sort", defaultValue = "asc", required = false) String sortDirection,
+                                                                                      @RequestParam(name = "sort", defaultValue = "desc", required = false) String sortDirection,
                                                                                       @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Get /user/comment-feedback");
 
@@ -212,7 +212,7 @@ public class MyActivityController {
 
         Map<String, Object> result = new HashMap<>();
 
-        Page<CommentFeedback> commentOrFeedback = commentFeedbackService.findMyCommentOrFeedback(pageNum, myMember, sortDirection);
+        Page<CommentFeedback> commentOrFeedback = commentFeedbackService.getMyCommentOrFeedback(pageNum, myMember, sortDirection);
 
         //조회할 레퍼런스가 db에 있으나, 현재 페이지에 조회할 데이터가 없는 경우 == 페이지 번호를 잘못 입력
         if ((commentOrFeedback.getContent().isEmpty()) && (commentOrFeedback.getTotalElements() > 0)) {
@@ -256,10 +256,10 @@ public class MyActivityController {
     })
     @GetMapping("/user/comment")
     @Operation(summary = "내가 작성한 코멘트 조회 Test Completed", description = "내가 작성한 코멘트 조회합니다." +
-            "<br> asc  : 오래된순(default)" +
-            "<br> desc  : 최신순")
+            "<br> asc  : 오래된순" +
+            "<br> desc  : 최신순(default)")
     public ResponseEntity<BaseResponse<ResMyCommentPaging>> myComment(@RequestParam(name = "page", defaultValue = "1", required = false) int pageNum,
-                                                                      @RequestParam(name = "sort", defaultValue = "asc", required = false) String sortDirection,
+                                                                      @RequestParam(name = "sort", defaultValue = "desc", required = false) String sortDirection,
                                                                       @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Get /user/comment");
 
@@ -274,7 +274,7 @@ public class MyActivityController {
 
         Map<String, Object> result = new HashMap<>();
 
-        Page<Comment> comments = commentService.findMyComment(pageNum, myMember, sortDirection);
+        Page<Comment> comments = commentService.getMyComments(pageNum, myMember, sortDirection);
 
         //조회할 레퍼런스가 db에 있으나, 현재 페이지에 조회할 데이터가 없는 경우 == 페이지 번호를 잘못 입력
         if ((comments.getContent().isEmpty()) && (comments.getTotalElements() > 0)) {
@@ -313,10 +313,10 @@ public class MyActivityController {
     })
     @GetMapping("/user/feedback")
     @Operation(summary = "내가 작성한 피드백 조회 Test Completed", description = "내가 작성한 피드백 조회합니다." +
-            "<br> asc  : 오래된순(default)" +
-            "<br> desc  : 최신순")
+            "<br> asc  : 오래된순" +
+            "<br> desc  : 최신순(default)")
     public ResponseEntity<BaseResponse<ResMyFeedbackPaging>> myFeedback(@RequestParam(name = "page", defaultValue = "1", required = false) int pageNum,
-                                                                        @RequestParam(name = "sort", defaultValue = "asc", required = false) String sortDirection,
+                                                                        @RequestParam(name = "sort", defaultValue = "desc", required = false) String sortDirection,
                                                                         @AuthenticationPrincipal MemberDetails memberDetails) {
         log.info("EndPoint Get /user/feedback");
 
@@ -330,7 +330,7 @@ public class MyActivityController {
         }
 
 
-        Page<Feedback> feedbacks = feedbackService.findMyFeedback(pageNum, myMember, sortDirection);
+        Page<Feedback> feedbacks = feedbackService.getMyFeedback(pageNum, myMember, sortDirection);
 
         //조회할 레퍼런스가 db에 있으나, 현재 페이지에 조회할 데이터가 없는 경우 == 페이지 번호를 잘못 입력
         if ((feedbacks.getContent().isEmpty()) && (feedbacks.getTotalElements() > 0)) {
@@ -450,6 +450,7 @@ public class MyActivityController {
                         null))
                 .content(commentFeedback.getComment().getContent())
                 .likeCount(commentFeedback.getComment().getLikeCount())
+                .isFeedback(false)
                 .build();
     }
 
@@ -464,6 +465,9 @@ public class MyActivityController {
                         commentFeedback.getMember().getProfileImage(),
                         null))
                 .content(commentFeedback.getFeedback().getContent())
-                .likeCount(commentFeedback.getFeedback().getLikeCount()).build();
+                .likeCount(commentFeedback.getFeedback().getLikeCount())
+                .isFeedback(true)
+                .build();
+
     }
 }

@@ -5,6 +5,8 @@ import Remoa.BE.Web.Feedback.Domain.FeedbackLike;
 import Remoa.BE.Web.Member.Domain.FeedbackBookmark;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Post.Domain.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,4 +42,6 @@ public interface FeedbackRepositoryCustom {
     void deleteFeedbackByMember(Member member);
 
     void deleteChildFeedbackByParentFeedback(Feedback feedback);
+
+    Page<Feedback> findMyFeedback(Member member, Pageable pageable, String sort);
 }

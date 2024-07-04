@@ -69,12 +69,12 @@ public class CommentService {
     }
 
 
-    public Page<Comment> findMyComment(int page, Member member, String sortDirection) {
+    public Page<Comment> getMyComments(int page, Member member, String sortDirection) {
         Pageable pageable = PageRequest.of(page, CONTENT_PAGE_SIZE);
-        if (sortDirection.equalsIgnoreCase("asc")) {
-            return commentRepository.findOldestComment(member, pageable);
+        if (sortDirection.equalsIgnoreCase("desc")) {
+            return commentRepository.findMyComment(member, pageable, "desc");
         } else {
-            return commentRepository.findNewestComment(member, pageable);
+            return commentRepository.findMyComment(member, pageable, "asc");
         }
     }
 
@@ -93,7 +93,6 @@ public class CommentService {
 
         LocalDateTime time = LocalDateTime.now();
         Post post = postRepository.findById(postId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
-        ;
 
         Comment commentObj = Comment.createComment(post, member, content, time);
         commentRepository.saveComment(commentObj);

@@ -25,7 +25,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
             "INNER JOIN FETCH c.post p " +
             "WHERE c.member = :member " +
             "AND c.commentedTime = (SELECT MIN(c2.commentedTime) FROM Comment c2 " +
-            "WHERE c2.post.postId = c.post.postId) " +
+            "WHERE c2.post.postId = c.post.postId AND c2.member = :member) " + //
             "ORDER BY c.commentedTime ASC")
     Page<Comment> findOldestComment(Member member, Pageable pageable);
 

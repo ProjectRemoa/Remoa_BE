@@ -46,12 +46,12 @@ public class CommentFeedbackService {
         return commentFeedbackRepository.save(commentFeedback);
     }
 
-    public Page<CommentFeedback> findMyCommentOrFeedback(int page, Member member, String sortDirection) {
+    public Page<CommentFeedback> getMyCommentOrFeedback(int page, Member member, String sortDirection) {
         Pageable pageable = PageRequest.of(page, CONTENT_PAGE_SIZE);
-        if (sortDirection.equalsIgnoreCase("asc")) {
-            return commentFeedbackRepository.findOldestCommentFeedback(member, pageable);
+        if (sortDirection.equalsIgnoreCase("desc")) {
+            return commentFeedbackRepository.findMyCommentOrFeedback(member, pageable, "desc");
         } else {
-            return commentFeedbackRepository.findNewestCommentFeedback(member, pageable);
+            return commentFeedbackRepository.findMyCommentOrFeedback(member, pageable, "asc");
         }
     }
 

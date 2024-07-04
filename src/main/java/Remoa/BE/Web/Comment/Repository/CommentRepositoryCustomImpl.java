@@ -1,15 +1,28 @@
 package Remoa.BE.Web.Comment.Repository;
 
 import Remoa.BE.Web.Comment.Domain.CommentLike;
+import Remoa.BE.Web.Comment.Domain.QComment;
+import Remoa.BE.Web.Member.Domain.QMember;
 import Remoa.BE.Web.Post.Domain.Post;
 import Remoa.BE.Web.Comment.Domain.Comment;
 import Remoa.BE.Web.Member.Domain.CommentBookmark;
 import Remoa.BE.Web.Member.Domain.Member;
+import Remoa.BE.Web.Post.Domain.QPost;
+import com.querydsl.core.QueryResults;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.EntityManager;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,9 +32,11 @@ import java.util.Optional;
 public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
     private final EntityManager em;
+
     public Optional<Comment> findOne(Long id) {
         return Optional.ofNullable(em.find(Comment.class, id));
     }
+
     public void saveComment(Comment comment) {
         em.persist(comment);
     }
@@ -32,6 +47,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
     /**
      * 포스트 별 코멘트을 찾아오기 위한 메서드
+     *
      * @param post
      * @return List<Comment>
      */
@@ -98,17 +114,17 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                 .getResultList();
     }
 
-    public void updateComment(Comment newComment){
+    public void updateComment(Comment newComment) {
         em.merge(newComment);
     }
 
-    public void deleteComment(Comment comment){
+    public void deleteComment(Comment comment) {
         em.remove(comment);
     }
 
     public List<Comment> findAllByMember(Member member) {
         return em.createQuery("select c from Comment c " +
-                "where c.member = :member", Comment.class)
+                        "where c.member = :member", Comment.class)
                 .setParameter("member", member)
                 .getResultList();
     }
@@ -119,9 +135,57 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                 .executeUpdate();
     }
 
-    public void deleteChildCommentByParentFeedback(Comment comment){
+    public void deleteChildCommentByParentFeedback(Comment comment) {
         em.createQuery("delete from Comment c where c.parentComment = :comment")
                 .setParameter("comment", comment)
                 .executeUpdate();
+    }
+
+    private final JPAQueryFactory jpaQueryFactory;
+    QComment comment = QComment.comment;
+    QMember member = QMember.member;
+    QPost post = QPost.post;
+
+
+    @Override
+    public Page<Comment> findMyComment(Member myMember, Pageable pageable, String sort) {
+
+
+        // Subquery to find the latest commented time per post by the member
+        JPAQuery<LocalDateTime> subQuery = jpaQueryFactory
+                .select(comment.commentedTime.max())
+                .from(comment)
+                .where(comment.post.postId.eq(post.postId)
+                        .and(comment.member.eq(myMember)));
+
+        // Main query to fetch comments with latest commented time per post
+        JPAQuery<Comment> query = jpaQueryFactory
+                .select(comment)
+                .from(comment)
+                .innerJoin(comment.post, post).fetchJoin()
+                .innerJoin(comment.member, member).fetchJoin()
+                .where(comment.member.eq(myMember)
+                        .and(comment.commentedTime.eq(subQuery)));
+
+        // Apply sorting based on the sort parameter
+        OrderSpecifier<?> orderSpecifier;
+        if ("asc".equalsIgnoreCase(sort)) {
+            orderSpecifier = comment.commentedTime.asc();
+        } else {
+            orderSpecifier = comment.commentedTime.desc();
+        }
+        query.orderBy(orderSpecifier);
+
+        // Fetch total count for pagination
+        long total = query.fetchCount();
+
+        // Apply pagination to the query
+        List<Comment> fetch = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // Convert to Page
+        return new PageImpl<>(fetch, pageable, total);
     }
 }
