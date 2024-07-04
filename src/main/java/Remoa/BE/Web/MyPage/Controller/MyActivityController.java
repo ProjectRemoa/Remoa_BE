@@ -114,76 +114,6 @@ public class MyActivityController {
         //return successResponse(CustomMessage.OK, result);
     }
 
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "내가 스크랩한 게시글을 성공적으로 조회했습니다."),
-            @ApiResponse(responseCode = "400", description = "페이지 번호가 잘못되었습니다.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GetMapping("/user/scrap") // 내가 스크랩한 게시글 확인
-    @Operation(summary = "내가 스크랩한 게시글 조회 Test Completed", description = "내가 스크랩한 게시글들을 확인합니다.")
-    public ResponseEntity<BaseResponse<ResMyScrapDto>> myScrap(@RequestParam(name = "page", defaultValue = "1", required = false) int pageNum,
-                                                               @AuthenticationPrincipal MemberDetails memberDetails
-    ) {
-        log.info("EndPoint Get /user/scrap");
-
-        Long memberId = memberDetails.getMemberId();
-        Member myMember = memberService.findOne(memberId);
-
-
-        ResMyScrapDto resMyScrapDto = new ResMyScrapDto();
-
-        pageNum -= 1;
-        if (pageNum < 0) {
-            throw new BaseException(CustomMessage.PAGE_NUM_OVER);
-            //return errorResponse(CustomMessage.PAGE_NUM_OVER);
-        }
-
-        /**
-         * 조회한 최근에 스크랩한 12개의 post들을 dto로 mapping.
-         */
-        Page<PostScrap> posts = postService.findScrapedPost(pageNum, myMember);
-
-        //조회할 레퍼런스가 db에 있으나, 현재 페이지에 조회할 데이터가 없는 경우 == 페이지 번호를 잘못 입력
-        if ((posts.getContent().isEmpty()) && (posts.getTotalElements() > 0)) {
-            throw new BaseException(CustomMessage.PAGE_NUM_OVER);
-            //  return errorResponse(CustomMessage.PAGE_NUM_OVER);
-        }
-
-        List<ResPostDto> postDtoList = posts.stream()
-                .map(PostScrap::getPost)
-                .toList()
-                .stream()
-                .map(post -> ResPostDto.builder()
-                        .postId(post.getPostId())
-                        .postMember(new ResMemberInfoDto(post.getMember().getMemberId(),
-                                post.getMember().getNickname(),
-                                post.getMember().getProfileImage(),
-                                followService.isMyMemberFollowMember(myMember, post.getMember())))
-                        .thumbnail(post.getThumbnail().getStoreFileUrl())
-                        .title(post.getTitle())
-                        .likeCount(post.getLikeCount())
-                        .isLikedPost((myMember != null && !post.getMember().getMemberId().equals(myMember.getMemberId())) ? postService.isThisPostLiked(myMember, post) : null)
-                        .postingTime(post.getPostingTime().toString())
-                        .views(post.getViews())
-                        .scrapCount(post.getScrapCount())
-                        .isScrapedPost((myMember != null && !post.getMember().getMemberId().equals(myMember.getMemberId())) ? postService.isThisPostScraped(myMember, post) : null)
-                        .categoryName(post.getCategory().getName()).build())
-                .collect(Collectors.toList());
-
-        ResMyScrapDto myScrapDto = ResMyScrapDto.builder()
-                .posts(postDtoList)
-                .totalPages(posts.getTotalPages())  //전체 페이지의 수
-                .totalOfAllPosts(posts.getTotalElements())//모든 게시글 수
-                .totalOfPageElements(posts.getNumberOfElements())//현 페이지 게시글 수
-                .build();
-
-        BaseResponse<ResMyScrapDto> response = new BaseResponse<>(CustomMessage.OK, myScrapDto);
-        return ResponseEntity.ok(response);
-        //  return successResponse(CustomMessage.OK, result);
-    }
-
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "내가 작성한 코멘트/피드백을 성공적으로 조회했습니다."),
@@ -365,7 +295,8 @@ public class MyActivityController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/user/receive")
-    @Operation(summary = "내가 받은 코멘트/피드백 조회 Test Completed", description = "내가 받은 최신 코멘트/피드백들을 조회합니다.")
+    @Operation(summary = "내가 받은 코멘트/피드백 조회 Test Completed", description = "내가 받은 최신 코멘트/피드백들을 조회합니다." +
+            " \"<br> category : \"idea\", \"marketing\", \"design\", \"video\", \"digital\", \"etc\"")
     public ResponseEntity<BaseResponse<ResReceivedCommentFeedbackDto>> receivedCommentFeedback(@RequestParam(required = false, defaultValue = "all") String category,
                                                                                                @RequestParam(required = false, defaultValue = "1", name = "page") int pageNum,
                                                                                                @AuthenticationPrincipal MemberDetails memberDetails) {
@@ -406,6 +337,79 @@ public class MyActivityController {
         BaseResponse<ResReceivedCommentFeedbackDto> response = new BaseResponse<>(CustomMessage.OK, responseDto);
         return ResponseEntity.ok(response);
         // return successResponse(CustomMessage.OK, result);
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "내가 스크랩한 게시글을 성공적으로 조회했습니다."),
+            @ApiResponse(responseCode = "400", description = "페이지 번호가 잘못되었습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/user/scrap") // 내가 스크랩한 게시글 확인
+    @Operation(summary = "내가 스크랩한 게시글 조회 Test Completed", description = "내가 스크랩한 게시글들을 확인합니다." +
+            "<br> category : \"idea\", \"marketing\", \"design\", \"video\", \"digital\", \"etc\" ")
+    public ResponseEntity<BaseResponse<ResMyScrapDto>> myScrap(
+            @RequestParam(required = false, defaultValue = "all") String category,
+            @RequestParam(name = "page", defaultValue = "1", required = false) int pageNum,
+            @AuthenticationPrincipal MemberDetails memberDetails
+    ) {
+        log.info("EndPoint Get /user/scrap");
+
+        Long memberId = memberDetails.getMemberId();
+        Member myMember = memberService.findOne(memberId);
+
+
+        ResMyScrapDto resMyScrapDto = new ResMyScrapDto();
+
+        pageNum -= 1;
+        if (pageNum < 0) {
+            throw new BaseException(CustomMessage.PAGE_NUM_OVER);
+            //return errorResponse(CustomMessage.PAGE_NUM_OVER);
+        }
+
+        /**
+         * 조회한 최근에 스크랩한 12개의 post들을 dto로 mapping.
+         */
+        Page<PostScrap> posts = postService.findScrapedPost(pageNum, myMember, category);
+
+        //조회할 레퍼런스가 db에 있으나, 현재 페이지에 조회할 데이터가 없는 경우 == 페이지 번호를 잘못 입력
+        if ((posts.getContent().isEmpty()) && (posts.getTotalElements() > 0)) {
+            throw new BaseException(CustomMessage.PAGE_NUM_OVER);
+            //  return errorResponse(CustomMessage.PAGE_NUM_OVER);
+        }
+
+        List<ResPostDto> postDtoList = posts.stream()
+                .map(PostScrap::getPost)
+                .toList()
+                .stream()
+                .map(post -> ResPostDto.builder()
+                        .postId(post.getPostId())
+                        .postMember(new ResMemberInfoDto(post.getMember().getMemberId(),
+                                post.getMember().getNickname(),
+                                post.getMember().getProfileImage(),
+                                followService.isMyMemberFollowMember(myMember, post.getMember())))
+                        .thumbnail(post.getThumbnail().getStoreFileUrl())
+                        .title(post.getTitle())
+                        .likeCount(post.getLikeCount())
+                        .isLikedPost((myMember != null && !post.getMember().getMemberId().equals(myMember.getMemberId())) ? postService.isThisPostLiked(myMember, post) : null)
+                        .postingTime(post.getPostingTime().toString())
+                        .views(post.getViews())
+                        .scrapCount(post.getScrapCount())
+                        .isScrapedPost((myMember != null && !post.getMember().getMemberId().equals(myMember.getMemberId())) ? postService.isThisPostScraped(myMember, post) : null)
+                        .categoryName(post.getCategory().getName()).build())
+                .collect(Collectors.toList());
+
+        ResMyScrapDto myScrapDto = ResMyScrapDto.builder()
+                .posts(postDtoList)
+                .totalPages(posts.getTotalPages())  //전체 페이지의 수
+                .totalOfAllPosts(posts.getTotalElements())//모든 게시글 수
+                .totalOfPageElements(posts.getNumberOfElements())//현 페이지 게시글 수
+                .build();
+
+        BaseResponse<ResMyScrapDto> response = new BaseResponse<>(CustomMessage.OK, myScrapDto);
+        return ResponseEntity.ok(response);
+        //  return successResponse(CustomMessage.OK, result);
     }
 
     private ResMyCommentDto commentBuilder(Comment comment) {
@@ -470,4 +474,6 @@ public class MyActivityController {
                 .build();
 
     }
+
+
 }

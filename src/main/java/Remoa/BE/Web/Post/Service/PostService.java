@@ -23,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -286,9 +287,14 @@ public class PostService {
         return isScrapAction;
     }
 
-    public Page<PostScrap> findScrapedPost(int page, Member member) {
+    public Page<PostScrap> findScrapedPost(int page, Member member, String categoryString) {
+        Category category = null;
+        List<String> categoryList = Arrays.asList("idea", "marketing", "design", "video", "digital", "etc");
+        if (categoryList.contains(categoryString)) {
+            category = categoryRepository.findByCategoryName(categoryString);
+        }
         Pageable pageable = PageRequest.of(page, HOME_PAGE_SIZE);
-        return postScrapRepository.findByMemberOrderByScrapTimeDesc(pageable, member);
+        return postScrapRepository.findMyScrapedPost(member, pageable, category);
     }
 
     public List<Post> findRecentTwelveScrapedPost(Member member) {
