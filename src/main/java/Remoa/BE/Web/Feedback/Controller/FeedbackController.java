@@ -145,9 +145,9 @@ public class FeedbackController {
             @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/reference/feedback/{feedback_id}/like") // 피드백 좋아요
+    @PostMapping("/reference/feedback/{feedback_member_id}/like") // 피드백 좋아요
     @Operation(summary = "피드백 좋아요 Test Completed", description = "피드백에 좋아요를 누릅니다.")
-    public ResponseEntity<BaseResponse<ResFeedbackLikeDto>> likeFeedback(@PathVariable("feedback_id") Long feedbackId,
+    public ResponseEntity<BaseResponse<ResFeedbackLikeDto>> likeFeedback(@PathVariable("feedback_member_id") Long feedbackMemberId,
                                                                          @AuthenticationPrincipal MemberDetails memberDetails) {
 
         log.info("EndPoint Post /reference/feedback/{feedback_id}/like");

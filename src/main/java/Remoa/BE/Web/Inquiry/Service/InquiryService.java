@@ -77,6 +77,7 @@ public class InquiryService {
         return resInquiryPaging;
     }
 
+    @Transactional
     public ResInquiryDetailDto getInquiryView(int inquiryId, HttpSession session) {
         Inquiry inquiry = inquiryRepository.findById((long) inquiryId).orElseThrow(() ->
                 new BaseException(CustomMessage.NO_ID));
