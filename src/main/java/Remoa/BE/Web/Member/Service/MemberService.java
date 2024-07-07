@@ -109,9 +109,9 @@ public class MemberService {
         boolean nicknameDuplicate;
         do {
             randomNumber = Integer.toString((random.nextInt(900_000) + 100_000));
-            nicknameDuplicate = memberRepository.existsByNickname("유저-" + randomNumber);
+            nicknameDuplicate = memberRepository.existsByNickname("유저" + randomNumber);
         } while (nicknameDuplicate);
-        return "유저-" + randomNumber;
+        return "유저" + randomNumber;
     }
 
     public Boolean isNicknameDuplicate(String nickname) {
