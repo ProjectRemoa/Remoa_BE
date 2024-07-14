@@ -10,6 +10,7 @@ import Remoa.BE.Web.Post.Domain.Category;
 import Remoa.BE.Web.Post.Domain.PostScrap;
 import Remoa.BE.Web.Post.Domain.QPost;
 import Remoa.BE.Web.Post.Domain.QPostScrap;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -32,18 +33,26 @@ public class PostScrapRepositoryCustomImpl implements PostScrapRepositoryCustom 
     QPostScrap postScrap = QPostScrap.postScrap;
 
     @Override
-    public Page<PostScrap> findMyScrapedPost(Member myMember, Pageable pageable, Category category) {
+    public Page<PostScrap> findMyScrapedPost(Member myMember, Pageable pageable, Category category, String sort) {
         boolean isCategoryExists = category != null;
 
-        List<PostScrap> resultPostScrap = jpaQueryFactory.select(postScrap)
+        JPAQuery<PostScrap> query = jpaQueryFactory.select(postScrap)
                 .from(postScrap)
                 .innerJoin(postScrap.post, post).fetchJoin()
                 .innerJoin(postScrap.post.member, member).fetchJoin()
                 .where(
                         postScrap.member.eq(myMember)
                                 .and(isCategoryExists ? postScrap.post.category.eq(category) : null)
-                )
-                .orderBy(postScrap.scrapTime.desc())
+                );
+        // Apply sorting based on the sort parameter
+        OrderSpecifier<?> orderSpecifier;
+        if ("asc".equalsIgnoreCase(sort)) {
+            orderSpecifier = postScrap.scrapTime.asc();
+        } else {
+            orderSpecifier = postScrap.scrapTime.desc();
+        }
+
+        List<PostScrap> result = query.orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -59,7 +68,7 @@ public class PostScrapRepositoryCustomImpl implements PostScrapRepositoryCustom 
                 );
 
         // 페이지네이션 적용
-        return PageableExecutionUtils.getPage(resultPostScrap, pageable, countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);
     }
 
 }

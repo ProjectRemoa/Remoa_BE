@@ -348,9 +348,12 @@ public class MyActivityController {
     })
     @GetMapping("/user/scrap") // 내가 스크랩한 게시글 확인
     @Operation(summary = "내가 스크랩한 게시글 조회 Test Completed", description = "내가 스크랩한 게시글들을 확인합니다." +
-            "<br> category : \"idea\", \"marketing\", \"design\", \"video\", \"digital\", \"etc\" ")
+            "<br> category : \"idea\", \"marketing\", \"design\", \"video\", \"digital\", \"etc\" " +
+            "<br> asc  : 오래된순" +
+            "<br> desc  : 최신순(default)")
     public ResponseEntity<BaseResponse<ResMyScrapDto>> myScrap(
             @RequestParam(required = false, defaultValue = "all") String category,
+            @RequestParam(required = false, defaultValue = "desc") String sort,
             @RequestParam(name = "page", defaultValue = "1", required = false) int pageNum,
             @AuthenticationPrincipal MemberDetails memberDetails
     ) {
@@ -371,7 +374,7 @@ public class MyActivityController {
         /**
          * 조회한 최근에 스크랩한 12개의 post들을 dto로 mapping.
          */
-        Page<PostScrap> posts = postService.findScrapedPost(pageNum, myMember, category);
+        Page<PostScrap> posts = postService.findScrapedPost(pageNum, myMember, category, sort);
 
         //조회할 레퍼런스가 db에 있으나, 현재 페이지에 조회할 데이터가 없는 경우 == 페이지 번호를 잘못 입력
         if ((posts.getContent().isEmpty()) && (posts.getTotalElements() > 0)) {

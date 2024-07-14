@@ -9,6 +9,6 @@ import org.springframework.data.domain.Pageable;
 public interface PostScrapRepositoryCustom {
 
 
-    Page<PostScrap> findMyScrapedPost(Member member, Pageable pageable, Category category);
+    Page<PostScrap> findMyScrapedPost(Member member, Pageable pageable, Category category, String sort);
 
 }

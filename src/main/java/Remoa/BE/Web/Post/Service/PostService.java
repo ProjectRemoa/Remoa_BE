@@ -301,14 +301,14 @@ public class PostService {
         return isScrapAction;
     }
 
-    public Page<PostScrap> findScrapedPost(int page, Member member, String categoryString) {
+    public Page<PostScrap> findScrapedPost(int page, Member member, String categoryString, String sort) {
         Category category = null;
         List<String> categoryList = Arrays.asList("idea", "marketing", "design", "video", "digital", "etc");
         if (categoryList.contains(categoryString)) {
             category = categoryRepository.findByCategoryName(categoryString);
         }
         Pageable pageable = PageRequest.of(page, HOME_PAGE_SIZE);
-        return postScrapRepository.findMyScrapedPost(member, pageable, category);
+        return postScrapRepository.findMyScrapedPost(member, pageable, category, sort);
     }
 
     public List<Post> findRecentTwelveScrapedPost(Member member) {
