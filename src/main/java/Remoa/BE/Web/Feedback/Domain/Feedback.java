@@ -66,9 +66,7 @@ public class Feedback {
 
 
 
-    @OneToMany(mappedBy = "feedback", cascade = {CascadeType.REMOVE}, fetch = LAZY)
-    //@OnDelete(action = OnDeleteAction.CASCADE)
-    private List<FeedbackReply> feedbackReplies;
+
 
     private Boolean deleted = Boolean.FALSE;
 

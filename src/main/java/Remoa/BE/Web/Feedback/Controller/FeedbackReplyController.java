@@ -49,18 +49,18 @@ public class FeedbackReplyController {
             @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/reference/{reference_id}/feedback/{feedback_id}") // 레퍼런스에 피드백 대댓글 등록
+    @PostMapping("/reference/{reference_id}/feedback/{feedback_member_log_id}") // 레퍼런스에 피드백 대댓글 등록
     @Operation(summary = "피드백 대댓글 등록 Test Completed", description = "특정 피드백에 대댓글을 등록합니다.")
     public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> registerFeedbackReply(@RequestBody ReqFeedbackReplyDto req,
                                                                                      @PathVariable("reference_id") Long postId,
-                                                                                     @PathVariable("feedback_id") Long feedbackId,
+                                                                                     @PathVariable("feedback_member_log_id") Long feedbackMemberLogId,
                                                                                      @AuthenticationPrincipal MemberDetails memberDetails) {
-        log.info("EndPoint Post /reference/{reference_id}/feedback/{feedback_id}");
+        log.info("EndPoint Post /reference/{reference_id}/feedback/{feedback_member_log_id}");
 
         String content = req.getFeedbackReply();
         Long memberId = memberDetails.getMemberId();
         Member myMember = memberService.findOne(memberId);
-        feedbackReplyService.registerFeedbackReply(myMember, postId, feedbackId, content);
+        feedbackReplyService.registerFeedbackReply(myMember, postId, feedbackMemberLogId, content);
 
         // 조회한 post의 feedback 조회 및 각 feedback에 대한 feedbackReply 조회 -> 이후 ResFeedbackDto로 매핑
         List<ResFeedbackDto2> resFeedbackDtos = memberUtils.feedbackList(postId, myMember);
@@ -74,13 +74,13 @@ public class FeedbackReplyController {
             @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PutMapping("/reference/feedback/{feedback_id}/reply/{reply_id}") // 피드백 대댓글 수정
+    @PutMapping("/reference/feedback/{feedback_member_log_id}/reply/{reply_id}") // 피드백 대댓글 수정
     @Operation(summary = "피드백 대댓글 수정 Test Completed", description = "작성한 피드백 대댓글을 수정합니다.")
     public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> modifyFeedbackReply(@RequestBody ReqFeedbackReplyDto req,
-                                                                                   @PathVariable("feedback_id") Long feedbackId,
+                                                                                   @PathVariable("feedback_member_log_id") Long feedbackMemberLogId,
                                                                                    @PathVariable("reply_id") Long replyId,
                                                                                    @AuthenticationPrincipal MemberDetails memberDetails) {
-        log.info("EndPoint Put /reference/feedback/{feedback_id}/reply/{reply_id}");
+        log.info("EndPoint Put /reference/feedback/{feedback_member_log_id}/reply/{reply_id}");
 
         String content = req.getFeedbackReply();
         FeedbackReply reply = feedbackReplyService.findOne(replyId);
@@ -105,12 +105,12 @@ public class FeedbackReplyController {
             @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @DeleteMapping("/reference/feedback/{feedback_id}/reply/{reply_id}") // 피드백 대댓글 삭제
+    @DeleteMapping("/reference/feedback/{feedback_member_log_id}/reply/{reply_id}") // 피드백 대댓글 삭제
     @Operation(summary = "피드백 대댓글 삭제 Test Completed", description = "작성한 피드백 대댓글을 삭제합니다.")
-    public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> deleteFeedbackReply(@PathVariable("feedback_id") Long feedbackId,
+    public ResponseEntity<BaseResponse<List<ResFeedbackDto2>>> deleteFeedbackReply(@PathVariable("feedback_member_log_id") Long feedbackMemberLogId,
                                                                                    @PathVariable("reply_id") Long replyId,
                                                                                    @AuthenticationPrincipal MemberDetails memberDetails) {
-        log.info("EndPoint Delete /reference/feedback/{feedback_id}/reply/{reply_id}");
+        log.info("EndPoint Delete /reference/feedback/{feedback_member_log_id}/reply/{reply_id}");
 
         FeedbackReply reply = feedbackReplyService.findOne(replyId);
 
@@ -140,7 +140,7 @@ public class FeedbackReplyController {
     public ResponseEntity<BaseResponse<ResFeedbackReplyLikeDto>> likeFeedback(@PathVariable("reply_id") Long replyId,
                                                                               @AuthenticationPrincipal MemberDetails memberDetails) {
 
-        log.info("EndPoint Post /reference/feedback/{feedback_id}/like");
+        log.info("EndPoint Post /reference/feedback/{feedback_member_log_id}/like");
 
         Long memberId = memberDetails.getMemberId();
         Member myMember = memberService.findOne(memberId);

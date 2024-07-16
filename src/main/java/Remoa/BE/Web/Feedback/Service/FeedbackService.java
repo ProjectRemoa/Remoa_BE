@@ -45,9 +45,48 @@ public class FeedbackService {
     private final FeedbackMemberLogRepository feedbackMemberLogRepository;
 
     @Transactional
+    public void deleteFeedbackByMember(Member member){
+        feedbackRepository.deleteFeedbackByMember(member);
+    }
+
+    @Transactional
+    public void deleteFeedbackLogByMember(Member member){
+        feedbackMemberLogRepository.deleteByMember(member);
+    }
+
+    @Transactional
     public Feedback findOne(Long feedbackId) {
         Optional<Feedback> feedback = feedbackRepository.findOne(feedbackId);
         return feedback.orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
+    }
+
+    @Transactional
+    public void deleteFeedbackByPost(Post post){
+        feedbackRepository.deleteFeedbackByPost(post);
+    }
+
+    @Transactional
+    public void deleteFeedbackLogByPost(Post post){
+        feedbackMemberLogRepository.deleteFeedbackLogByPost(post);
+    }
+
+    @Transactional
+    public void deleteFeedbackLikeByFeedBack(FeedbackMemberLog feedbackMemberLog){
+        feedbackLikeRepository.deleteByFeedback(feedbackMemberLog);
+    }
+
+    @Transactional
+    public List<Feedback> findFeedbackByPost(Post post){
+        return feedbackRepository.findFeedbackByPost(post);
+    }
+
+    public List<FeedbackMemberLog> findFeedbackMemberLogByPost(Post post){
+        return feedbackMemberLogRepository.findByPost(post);
+    }
+
+    @Transactional
+    public void deleteByPost(Post post){
+        feedbackRepository.deleteByPost(post);
     }
 
     public Page<Feedback> getMyFeedback(int page, Member member, String sortDirection) {

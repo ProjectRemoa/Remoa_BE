@@ -46,7 +46,7 @@ public class AuthConstant {
             = {"/user/img", "/delete/{member_id}", "/delete", "/reference/comment/{comment_id}",
             "/reference/feedback/{feedback_id}", "/user/reference/{reference_id}", "/user/referenceCategory/{category}",
             "/inquiry/{id}", "/reference/comment/{comment_id}/reply/{reply_id}", "/reference/feedback/{feedback_id}/reply/{reply_id}",
-    "/reference/feedback/{reference_id}/{page_number}", };
+    "/reference/feedback/{reference_id}/{page_number}", "/remove" };
 
     // ADMIN 역할에 대한 인증이 필요한 경로
     public static final String[] ADMIN_POST_AUTH_BLACKLIST = {"/notice", "/inquiry/{inquiry_id}/reply", "/admin/**"};

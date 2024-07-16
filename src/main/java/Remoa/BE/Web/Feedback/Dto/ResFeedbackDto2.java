@@ -22,6 +22,9 @@ public class ResFeedbackDto2 {
     @Schema(description = "피드백 작성자 정보")
     private ResMemberInfoDto member;
 
+    @Schema(description = "피드백-회원 로깅 ID")
+    private Long feedbackMemberLogId;
+
     @Schema(description = "좋아요 수", example = "10")
     private Integer likeCount;
 
@@ -31,12 +34,20 @@ public class ResFeedbackDto2 {
     @Schema(description = "해당 회원의 피드백 정보")
     private List<ResFeedbackInfoDto> feedbackInfos;
 
+    @Schema(description = "피드백에 대한 답글 목록")
+    private List<ResFeedbackReplyDto> replies;
 
-    public ResFeedbackDto2(ResMemberInfoDto member, FeedbackMemberLog feedbackMemberLog, Boolean isLiked, List<ResFeedbackInfoDto> feedbackInfos) {
+
+    public ResFeedbackDto2(ResMemberInfoDto member,
+                           FeedbackMemberLog feedbackMemberLog,
+                           Boolean isLiked,
+                           List<ResFeedbackInfoDto> feedbackInfos,
+                           List<ResFeedbackReplyDto> replies) {
         this.member = member;
+        this.feedbackMemberLogId = feedbackMemberLog.getFeedbackMemberLogId();
         this.likeCount = feedbackMemberLog.getLikeCount();
         this.isLiked = isLiked;
         this.feedbackInfos = feedbackInfos;
-
+        this.replies = replies;
     }
 }

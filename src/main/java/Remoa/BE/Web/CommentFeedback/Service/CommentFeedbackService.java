@@ -32,6 +32,21 @@ public class CommentFeedbackService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
+    public void deleteByComment(Comment comment){
+        commentFeedbackRepository.deleteByComment(comment);
+    }
+
+    @Transactional
+    public void deleteByFeedback(Feedback feedback){
+        commentFeedbackRepository.deleteByFeedback(feedback);
+    }
+
+    @Transactional
+    public void deleteByMember(Member member){
+        commentFeedbackRepository.deleteByMember(member);
+    }
+
+    @Transactional
     public CommentFeedback saveCommentFeedback(Comment comment, Feedback feedback, ContentType type,
                                                Member member, Post post, LocalDateTime time) {
 

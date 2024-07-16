@@ -6,11 +6,28 @@ import Remoa.BE.Web.Post.Domain.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 public interface FeedbackRepository extends JpaRepository<Feedback, Long>, FeedbackRepositoryCustom {
 
+    @Query("select f from Feedback f where f.post = :post")
+    List<Feedback> findFeedbackByPost(Post post);
+
+    @Modifying
+    @Query("delete from Feedback f where f.post = :post")
+    void deleteFeedbackByPost(@Param("post") Post post);
+
     Page<Feedback> findByMemberOrderByFeedbackTimeDesc(Pageable pageable, Member member);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Feedback f WHERE f.post = :post")
+    void deleteByPost(Post post);
 
     boolean existsByMemberAndPostAndPageNumber(Member member, Post post, Integer pageNumber);
     boolean existsByMemberAndPost(Member member, Post post);

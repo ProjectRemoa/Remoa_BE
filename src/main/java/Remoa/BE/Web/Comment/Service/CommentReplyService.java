@@ -35,6 +35,16 @@ public class CommentReplyService {
         return commentReplies;
     }
 
+    @Transactional
+    public void deleteByMember(Member member){
+        commentReplyRepository.deleteByMember(member);
+    }
+
+    @Transactional
+    public void deleteByComment(Comment comment){
+        commentReplyRepository.deleteByComment(comment);
+    }
+
 
     @Transactional
     public CommentReply registerCommentReply(Member member, String content, Long postId, Long commentId) {

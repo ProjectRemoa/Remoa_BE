@@ -108,12 +108,6 @@ public class CommentFeedbackCustomRepositoryImpl implements CommentFeedbackCusto
                 .stream().findAny();
     }
 
-    @Override
-    public void deleteByMember(Member member) {
-        jpaQueryFactory.delete(commentFeedback)
-                .where(this.member.eq(member))
-                .execute();
-    }
 
     public Page<CommentFeedback> findRecentReceivedCommentFeedback(Member member, Pageable pageable, Category category) {
         boolean isCategoryExists = category != null;

@@ -97,7 +97,7 @@ public class MyActivityController {
                                 post.getMember().getNickname(),
                                 post.getMember().getProfileImage(),
                                 followService.isMyMemberFollowMember(myMember, post.getMember())))
-                        .thumbnail(post.getThumbnail().getStoreFileUrl())
+                        .thumbnail(post.getThumbnailUrl())
                         .title(post.getTitle())
                         .likeCount(post.getLikeCount())
                         .isLikedPost((myMember != null && !post.getMember().getMemberId().equals(myMember.getMemberId())) ? postService.isThisPostLiked(myMember, post) : null)
@@ -392,7 +392,7 @@ public class MyActivityController {
                                 post.getMember().getNickname(),
                                 post.getMember().getProfileImage(),
                                 followService.isMyMemberFollowMember(myMember, post.getMember())))
-                        .thumbnail(post.getThumbnail().getStoreFileUrl())
+                        .thumbnail(post.getThumbnailUrl())
                         .title(post.getTitle())
                         .likeCount(post.getLikeCount())
                         .isLikedPost((myMember != null && !post.getMember().getMemberId().equals(myMember.getMemberId())) ? postService.isThisPostLiked(myMember, post) : null)
@@ -420,7 +420,7 @@ public class MyActivityController {
                 .title(comment.getPost().getTitle())
                 .postId(comment.getPost().getPostId())
                 .commentId(comment.getCommentId())
-                .thumbnail(comment.getPost().getThumbnail().getStoreFileUrl())
+                .thumbnail(comment.getPost().getThumbnailUrl())
                 .member(new ResMemberInfoDto(comment.getMember().getMemberId(),
                         comment.getMember().getNickname(),
                         comment.getMember().getProfileImage(),
@@ -435,7 +435,7 @@ public class MyActivityController {
                 .title(feedback.getPost().getTitle())
                 .postId(feedback.getPost().getPostId())
                 .feedbackId(feedback.getFeedbackId())
-                .thumbnail(feedback.getPost().getThumbnail().getStoreFileUrl())
+                .thumbnail(feedback.getPost().getThumbnailUrl())
                 .member(new ResMemberInfoDto(feedback.getMember().getMemberId(),
                         feedback.getMember().getNickname(),
                         feedback.getMember().getProfileImage(),
@@ -450,7 +450,7 @@ public class MyActivityController {
                 .title(commentFeedback.getPost().getTitle())
                 .postId(commentFeedback.getPost().getPostId())
                 .commentId(commentFeedback.getComment().getCommentId())
-                .thumbnail(commentFeedback.getPost().getThumbnail().getStoreFileUrl())
+                .thumbnail(commentFeedback.getPost().getThumbnailUrl())
                 .member(new ResMemberInfoDto(commentFeedback.getMember().getMemberId(),
                         commentFeedback.getMember().getNickname(),
                         commentFeedback.getMember().getProfileImage(),
@@ -466,7 +466,7 @@ public class MyActivityController {
                 .title(commentFeedback.getPost().getTitle())
                 .postId(commentFeedback.getPost().getPostId())
                 .feedbackId(commentFeedback.getFeedback().getFeedbackId())
-                .thumbnail(commentFeedback.getPost().getThumbnail().getStoreFileUrl())
+                .thumbnail(commentFeedback.getPost().getThumbnailUrl())
                 .member(new ResMemberInfoDto(commentFeedback.getMember().getMemberId(),
                         commentFeedback.getMember().getNickname(),
                         commentFeedback.getMember().getProfileImage(),

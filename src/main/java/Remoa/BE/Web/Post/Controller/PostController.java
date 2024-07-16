@@ -102,7 +102,7 @@ public class PostController {
 
         for (Post post : allPosts) {
             ResHomeReferenceDto map = ResHomeReferenceDto.builder()
-                    .postThumbnail(post.getThumbnail().getStoreFileUrl())
+                    .postThumbnail(post.getThumbnailUrl())
                     .postId(post.getPostId())
                     .title(post.getTitle())
                     .views(post.getViews())

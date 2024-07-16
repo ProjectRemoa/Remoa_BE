@@ -41,13 +41,32 @@ public class CommentService {
     private final MemberService memberService;
 
     @Transactional
+    public void deleteByMember(Member member){
+        commentRepository.deleteCommentByMember(member);
+    }
+
+    @Transactional
     public Long writeComment(Comment comment) {
         commentRepository.saveComment(comment);
         return comment.getCommentId();
     }
 
+    @Transactional
+    public void deleteCommentLikeByComment(Comment comment){
+        commentLikeRepository.deleteByComment(comment);
+    }
+
+    @Transactional
+    public void deleteByPost(Post post){
+        commentRepository.deleteByPost(post);
+    }
+
     public List<Comment> findAllCommentsOfPost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
+        return commentRepository.findByPost(post);
+    }
+
+    public List<Comment> findCommentsByPost(Post post) {
         return commentRepository.findByPost(post);
     }
 

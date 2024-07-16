@@ -41,15 +41,10 @@ public class PostService {
 
 
     private final MemberService memberService;
-
     private final PostRepository postRepository;
-
     private final CategoryRepository categoryRepository;
-
     private final FileService fileService;
-
     private final PostPagingRepository postPagingRepository;
-
     private final PostScrapRepository postScrapRepository;
     private final PostLikeRepository postLikeRepository;
 
@@ -57,6 +52,12 @@ public class PostService {
     public List<Post> findPostsByMember(Member member) {
         return postRepository.findByMember(member);
     }
+
+    public void deleteByMember(Member myMember){
+        postRepository.deletePostByMember(myMember);
+    }
+
+
 
     public Post findOne(Long postId) {
         Optional<Post> post = postRepository.findOne(postId);

@@ -44,6 +44,10 @@ public class FeedbackMemberLog {
     //@OnDelete(action = OnDeleteAction.CASCADE)
     private List<FeedbackLike> feedbackLikes;
 
+    @OneToMany(mappedBy = "feedbackMemberLog", cascade = {CascadeType.REMOVE}, fetch = LAZY)
+    //@OnDelete(action = OnDeleteAction.CASCADE)
+    private List<FeedbackReply> feedbackReplies;
+
     public void increaseLikeCount(){
         this.likeCount++;
     }

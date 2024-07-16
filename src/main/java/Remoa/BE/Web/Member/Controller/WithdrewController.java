@@ -1,11 +1,24 @@
 package Remoa.BE.Web.Member.Controller;
 
+import Remoa.BE.Web.Comment.Domain.Comment;
+import Remoa.BE.Web.Comment.Service.CommentReplyService;
+import Remoa.BE.Web.Comment.Service.CommentService;
+import Remoa.BE.Web.CommentFeedback.Service.CommentFeedbackService;
+import Remoa.BE.Web.Feedback.Domain.Feedback;
+import Remoa.BE.Web.Feedback.Domain.FeedbackMemberLog;
+import Remoa.BE.Web.Feedback.Service.FeedbackReplyService;
+import Remoa.BE.Web.Feedback.Service.FeedbackService;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Member.Service.MemberService;
 import Remoa.BE.Web.Member.Service.WithdrewService;
+import Remoa.BE.Web.Post.Domain.Post;
+import Remoa.BE.Web.Post.Repository.UploadFileRepository;
+import Remoa.BE.Web.Post.Service.FileService;
+import Remoa.BE.Web.Post.Service.PostService;
 import Remoa.BE.config.auth.MemberDetails;
 import Remoa.BE.exception.response.ErrorResponse;
 import Remoa.BE.utill.MessageUtils;
+import io.lettuce.core.event.command.CommandStartedEvent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,6 +32,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.util.List;
 import java.util.Objects;
 
 @Tag(name = "탈퇴 기능", description = "탈퇴 기능 API")
@@ -29,11 +44,18 @@ public class WithdrewController {
 
     private final WithdrewService withdrewService;
     private final MemberService memberService;
+    private final PostService postService;
+    private final FeedbackService feedbackService;
+    private final FeedbackReplyService feedbackReplyService;
+    private final CommentService commentService;
+    private final CommentReplyService commentReplyService;
+    private final CommentFeedbackService commentFeedbackService;
+    private final FileService fileService;
 
     /**
      * PathVariable을 이용한 회원 탈퇴 uri.
      * 로그인 된 사용자인지, 해당 사용자의 탈퇴 요청이 맞는지 확인 후 탈퇴 처리.
-     * @param memberId
+     *
      * @return 로그인 되지 않은 상태면 403(forbidden), 다른 id 값을 통한 잘못된 요청을 하면 401(Unauthorized), 올바른 탈퇴 요청이면 200(OK)
      */
 
@@ -42,21 +64,45 @@ public class WithdrewController {
             @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @DeleteMapping("/delete/{member_id}")
-    @Operation(summary = "회원 탈퇴 (PathVariable)", description = "로그인한 사용자가 자신의 계정을 탈퇴합니다.")
-    public ResponseEntity<String> withdrewRemoa(@PathVariable("member_id") Long memberId,
-                                                @AuthenticationPrincipal MemberDetails memberDetails) {
-        log.info("EndPoint Delete /delete/{member_id}");
+    @DeleteMapping("/remove")
+    @Operation(summary = "회원 DB 제거 ", description = "데이터 베이스 영구삭제 (개발 전용)")
+    public ResponseEntity<String> withdrewRemoa(@AuthenticationPrincipal MemberDetails memberDetails) {
+        log.info("EndPoint Delete /remove");
 
-        //PathVariable의 id와 로그인된 사용자의 id가 같은지 확인하기 위한 용도.
-        if (!Objects.equals(memberId, memberDetails.getMemberId())) {
-            return new ResponseEntity<>("회원정보가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED);
-        }
+        Long memberId = memberDetails.getMemberId();
+        Member myMember = memberService.findOne(memberId);
 
-        //해당 객체로 탈퇴 수행해야 dirty checking 통한 soft delete 적용 가능.
-        Member member = memberService.findOne(memberId);
+        List<Post> postsByMember = postService.findPostsByMember(myMember);
+        postsByMember.forEach(post -> {
+            List<Comment> commentsByPost = commentService.findCommentsByPost(post); //코멘트 조회
+            commentsByPost.forEach(commentReplyService::deleteByComment); //코멘트 대댓글 삭제
+            commentsByPost.forEach(commentService::deleteCommentLikeByComment); // 코멘트 좋아요 삭제
+            commentsByPost.forEach(commentFeedbackService::deleteByComment); //코멘트-피드백 삭제
+            commentService.deleteByPost(post); // 코멘트 삭제
 
-        withdrewService.withdrewRemoa(member);
+            List<FeedbackMemberLog> feedbackMemberLogByPost = feedbackService.findFeedbackMemberLogByPost(post);//피드백로그 조회
+            feedbackMemberLogByPost.forEach(feedbackReplyService::deleteByFeedbackMemberLog); //피드백 대댓글 삭제
+            feedbackMemberLogByPost.forEach(feedbackService::deleteFeedbackLikeByFeedBack); //피드백 좋아요
+            feedbackService.deleteFeedbackLogByPost(post);//피드백 로그 삭제
+
+            List<Feedback> feedbackByPost = feedbackService.findFeedbackByPost(post); //피드백 조회
+            feedbackByPost.forEach(commentFeedbackService::deleteByFeedback); //코멘트-피드백 삭제
+            feedbackService.deleteFeedbackByPost(post); //피드백 삭제
+
+            fileService.deleteByPost(post);
+        });
+        postService.deleteByMember(myMember); //해당 포스트 삭제
+
+        commentFeedbackService.deleteByMember(myMember); //코멘트-피드백 삭제
+        commentService.deleteByMember(myMember);
+        commentReplyService.deleteByMember(myMember);
+        feedbackService.deleteFeedbackByMember(myMember);
+        feedbackService.deleteFeedbackLogByMember(myMember);
+        feedbackReplyService.deleteByMember(myMember);
+
+        //데이터베이스 영구 삭제
+        memberService.deleteMemberFromDB(myMember);
+
 
         return new ResponseEntity<>("회원 탈퇴가 완료되었습니다.", HttpStatus.OK);
     }

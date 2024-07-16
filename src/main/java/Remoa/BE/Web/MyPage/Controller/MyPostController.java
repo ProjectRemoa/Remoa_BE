@@ -112,7 +112,7 @@ public class MyPostController {
                     .views(post.getViews())
                     .categoryName(post.getCategory().getName())
                     .likeCount(post.getLikeCount())
-                    .thumbnail(post.getThumbnail().getStoreFileUrl())
+                    .thumbnail(post.getThumbnailUrl())
                     .scrapCount(post.getScrapCount())
                     .title(post.getTitle()).build();
             result.add(map);
@@ -195,7 +195,7 @@ public class MyPostController {
                     .categoryName(post.getCategory().getName())
                     .likeCount(post.getLikeCount())
                     .isLikedPost((myMember != null && !post.getMember().getMemberId().equals(myMember.getMemberId())) ? postService.isThisPostLiked(myMember, post) : null)
-                    .thumbnail(post.getThumbnail().getStoreFileUrl())
+                    .thumbnail(post.getThumbnailUrl())
                     .scrapCount(post.getScrapCount())
                     .isScrapedPost((myMember != null && !post.getMember().getMemberId().equals(myMember.getMemberId())) ? postService.isThisPostScraped(myMember, post) : null)
                     .title(post.getTitle()).build();

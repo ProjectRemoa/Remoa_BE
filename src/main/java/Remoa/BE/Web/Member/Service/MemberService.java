@@ -46,6 +46,11 @@ public class MemberService {
 
     }
 
+    @Transactional
+    public void deleteMemberFromDB(Member member){
+        memberRepository.deleteMemberFromDB(member);
+    }
+
 
     public GeneralLoginRes generalLogin(GeneralLoginReq loginReq) {
         Member member = memberRepository.findByAccount(loginReq.getAccount()).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));

@@ -73,7 +73,7 @@ public class ResReferenceViewerDto {
     public ResReferenceViewerDto(Post post, Member postMember, Boolean isFollow, Boolean isLiked, Boolean isScraped, List<ResCommentDto> comments, List<ResFeedbackDto2> feedbacks) {
         this.postId = post.getPostId();
         this.postMember = new ResMemberInfoDto(postMember, isFollow);
-        this.thumbnail = post.getThumbnail().getStoreFileUrl();
+        this.thumbnail = post.getThumbnailUrl();
         this.contestName = post.getContestName();
         this.contestAwardType = post.getContestAwardType();
         this.category = post.getCategory().getName();

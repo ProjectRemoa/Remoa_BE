@@ -88,29 +88,12 @@ public class Member {
     @Column(name = "profile_image")
     private String profileImage = "https://remoa.s3.ap-northeast-2.amazonaws.com/img/flow_noname_image.png";
 
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
-    private List<Post> posts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
-    private List<Comment> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
-    private List<Feedback> feedbacks = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "member", orphanRemoval = true, cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     private List<MemberCategory> memberCategories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
-    private List<CommentBookmark> commentBookmarks = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
-    private List<CommentLike> commentLikes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "fromMember", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fromMember", orphanRemoval = true, cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     private List<Follow> follows = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
-    private List<CommentFeedback> commentFeedbacks = new ArrayList<>();
 
     /**
      * ADMIN과 일반 USER를 구분하기 위해 존재. Spring Security 이용하기 위함

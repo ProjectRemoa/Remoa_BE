@@ -26,15 +26,14 @@ public class ResFeedbackInfoDto {
     @Schema(description = "피드백 작성 시간", example = "2024-04-05T08:30:00")
     private LocalDateTime feedbackTime;
 
-    @Schema(description = "피드백에 대한 답글 목록")
-    private List<ResFeedbackReplyDto> replies;
 
-    public ResFeedbackInfoDto(Feedback feedback, List<ResFeedbackReplyDto> replies) {
+
+    public ResFeedbackInfoDto(Feedback feedback) {
         this.feedbackId = feedback.getFeedbackId();
         this.feedback = feedback.getContent();
         this.page = feedback.getPageNumber();
         this.isDeleted = feedback.getDeleted();
         this.feedbackTime = feedback.getFeedbackTime();
-        this.replies = replies;
+
     }
 }

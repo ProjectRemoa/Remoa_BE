@@ -43,8 +43,8 @@ public class Post {
      */
     private String title;
 
-    @OneToOne
-    private UploadFile thumbnail;
+
+    private String thumbnailUrl;
 
     /**
      * 참여 공모전의 이름
@@ -105,34 +105,34 @@ public class Post {
      * Post에 작성되어진 Comment
      */
     @Builder.Default
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = LAZY)
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.REMOVE, fetch = LAZY)
     //@OnDelete(action = OnDeleteAction.CASCADE)
     private List<Comment> comments = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = LAZY)
+    @OneToMany(mappedBy = "post", orphanRemoval = true,  cascade = CascadeType.REMOVE, fetch = LAZY)
     //@OnDelete(action = OnDeleteAction.CASCADE)
     private List<Feedback> feedbacks = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = LAZY)
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.REMOVE, fetch = LAZY)
     //@OnDelete(action = OnDeleteAction.CASCADE)
     private List<CommentFeedback> commentFeedbacks = new ArrayList<>();
 
 
     @Builder.Default
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = LAZY)
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.REMOVE, fetch = LAZY)
     //@OnDelete(action = OnDeleteAction.CASCADE)
     private List<PostScrap> postScraps = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = LAZY)
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.REMOVE, fetch = LAZY)
     //@OnDelete(action = OnDeleteAction.CASCADE)
     private List<PostLike> postLikes = new ArrayList<>();
     /**
      * Post에서 쓰인 files
      */
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = LAZY)
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL, fetch = LAZY)
     private List<UploadFile> uploadFiles;
 
     /**

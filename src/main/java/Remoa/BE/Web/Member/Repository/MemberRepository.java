@@ -2,8 +2,10 @@ package Remoa.BE.Web.Member.Repository;
 
 import Remoa.BE.Web.Member.Domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +19,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByAccount(String account);
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Member m WHERE m = :member")
+    void deleteMemberFromDB(@Param("member") Member member);
 
     @Query("select m from Member m where m.memberId = :id")
     Optional<Member> findOne(@Param("id") Long id);

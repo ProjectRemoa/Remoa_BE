@@ -44,6 +44,11 @@ public class FileService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    @Transactional
+    public void deleteByPost(Post post){
+        uploadFileRepository.deleteByPost(post);
+    }
+
     /**
      * @param post          게시글
      * @param multipartFile 해당 게시글의 파일 리스트
@@ -60,7 +65,7 @@ public class FileService {
 
         //새로운 인스턴스 만들어서 set하지 않으면 clear 되면서 null이 계속 저장됨.
         UploadFile uploadFile = uploadFileList.get(0);
-        post.setThumbnail(uploadFile);
+        post.setThumbnailUrl(uploadFile.getStoreFileUrl());
 
         post.setUploadFiles(new ArrayList<>(uploadFileList.subList(1, uploadFileList.size())));
         postRepository.savePost(post);
@@ -94,7 +99,7 @@ public class FileService {
 
         //새로운 인스턴스 만들어서 set하지 않으면 clear 되면서 null이 계속 저장됨.
         UploadFile uploadFile = uploadFileList.get(0);
-        post.setThumbnail(uploadFile);
+        post.setThumbnailUrl(uploadFile.getStoreFileUrl());
 
         post.setUploadFiles(new ArrayList<>(uploadFileList.subList(1, uploadFileList.size())));
         postRepository.modifyPost(post);

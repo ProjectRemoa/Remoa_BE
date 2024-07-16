@@ -100,17 +100,7 @@ public class MemberUtils {
                     List<Feedback> memberFeedbacks = entry.getValue();
 
                     List<ResFeedbackInfoDto> feedbackInfos = memberFeedbacks.stream()
-                            .map(feedback -> {
-                                List<FeedbackReply> replies = feedbackReplyService.findFeedbackReplies(feedback);
-                                List<ResFeedbackReplyDto> resReplies = replies.stream()
-                                        .map(reply -> new ResFeedbackReplyDto(reply,
-                                                isLikedFeedbackReply(myMember, reply),
-                                                isMyMemberFollowMember(myMember, reply.getMember())))
-                                        .collect(Collectors.toList());
-
-                                return new ResFeedbackInfoDto(feedback,
-                                        resReplies);
-                            })
+                            .map(ResFeedbackInfoDto::new)
                             .collect(Collectors.toList());
 
                     ResMemberInfoDto memberInfoDto = new ResMemberInfoDto(feedbackMember, isMyMemberFollowMember(myMember, feedbackMember));
@@ -119,7 +109,13 @@ public class MemberUtils {
                     return new ResFeedbackDto2(memberInfoDto,
                             feedbackMemberLog,
                             isLikedFeedbackMember(myMember, feedbackMemberLog),
-                            feedbackInfos);
+                            feedbackInfos,
+                            feedbackReplyService.findFeedbackReplies(feedbackMemberLog).stream().map(
+                                    feedbackReply -> new ResFeedbackReplyDto(
+                                            feedbackReply,
+                                            isLikedFeedbackReply(myMember, feedbackReply),
+                                            isMyMemberFollowMember(myMember, feedbackReply.getMember()))).collect(Collectors.toList())
+                    );
                 })
                 .collect(Collectors.toList());
 

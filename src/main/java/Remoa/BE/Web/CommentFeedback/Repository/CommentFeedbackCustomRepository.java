@@ -7,14 +7,17 @@ import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Post.Domain.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-public interface CommentFeedbackCustomRepository {
+public interface CommentFeedbackCustomRepository  {
     Optional<CommentFeedback> findByMemberOrderByTime(Member member);
     Optional<CommentFeedback> findByComment(Comment comment);
     Optional<CommentFeedback> findByFeedback(Feedback feedback);
-    void deleteByMember(Member member);
+
     Page<CommentFeedback> findRecentReceivedCommentFeedback(Member member, Pageable pageable, Category category);
     Page<CommentFeedback> findMyCommentOrFeedback(Member member, Pageable pageable, String sort);
 }

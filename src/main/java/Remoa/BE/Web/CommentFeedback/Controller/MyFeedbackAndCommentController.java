@@ -112,7 +112,7 @@ public class MyFeedbackAndCommentController {
 
                 ResReceivedCommentDto map = ResReceivedCommentDto.builder()
                         .title(post.getTitle())
-                        .thumbnail(post.getThumbnail().getStoreFileUrl())
+                        .thumbnail(post.getThumbnailUrl())
                         .postId(post.getPostId())
                         .commentInfo(commentInfo)
                         .build();

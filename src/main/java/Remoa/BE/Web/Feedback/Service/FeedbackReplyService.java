@@ -2,8 +2,10 @@ package Remoa.BE.Web.Feedback.Service;
 
 
 import Remoa.BE.Web.Feedback.Domain.Feedback;
+import Remoa.BE.Web.Feedback.Domain.FeedbackMemberLog;
 import Remoa.BE.Web.Feedback.Domain.FeedbackReply;
 import Remoa.BE.Web.Feedback.Domain.FeedbackReplyLike;
+import Remoa.BE.Web.Feedback.Repository.FeedbackMemberLogRepository;
 import Remoa.BE.Web.Feedback.Repository.FeedbackReplyLikeRepository;
 import Remoa.BE.Web.Feedback.Repository.FeedbackReplyRepository;
 import Remoa.BE.Web.Feedback.Repository.FeedbackRepository;
@@ -27,23 +29,33 @@ import java.util.Optional;
 public class FeedbackReplyService {
 
     private final PostRepository postRepository;
-    private final FeedbackRepository feedbackRepository;
     private final FeedbackReplyRepository feedbackReplyRepository;
     private final FeedbackReplyLikeRepository feedbackReplyLikeRepository;
+    private final FeedbackMemberLogRepository feedbackMemberLogRepository;
 
 
     @Transactional
-    public FeedbackReply registerFeedbackReply(Member member, Long postId, Long feedbackId, String content) {
+    public void deleteByMember(Member member){
+        feedbackReplyRepository.deleteByMember(member);
+    }
+
+    @Transactional
+    public FeedbackReply registerFeedbackReply(Member member, Long postId, Long feedbackMemberLogId, String content) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));;
-        Feedback feedback = feedbackRepository.findById(feedbackId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));;
-        FeedbackReply feedbackReply = FeedbackReply.createFeedbackReply(post, member, feedback, content);
+        FeedbackMemberLog feedbackMemberLog = feedbackMemberLogRepository.findById(feedbackMemberLogId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
+        FeedbackReply feedbackReply = FeedbackReply.createFeedbackReply(post, member, feedbackMemberLog, content);
         feedbackReplyRepository.save(feedbackReply);
         return feedbackReply;
     }
 
+    @Transactional
+    public void deleteByFeedbackMemberLog(FeedbackMemberLog feedbackMemberLog){
+        feedbackReplyRepository.deleteByFeedbackMemberLog(feedbackMemberLog);
+    }
 
-    public List<FeedbackReply> findFeedbackReplies(Feedback parentFeedback) {
-        return feedbackReplyRepository.findByFeedbackOrderByFeedbackReplyTimeAsc(parentFeedback);
+
+    public List<FeedbackReply> findFeedbackReplies(FeedbackMemberLog feedbackMemberLog) {
+        return feedbackReplyRepository.findByFeedbackMemberLogOrderByFeedbackReplyTimeAsc(feedbackMemberLog);
     }
 
     public FeedbackReply findOne(Long replyId) {

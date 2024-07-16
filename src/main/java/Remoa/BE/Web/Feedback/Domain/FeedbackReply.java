@@ -44,8 +44,8 @@ public class FeedbackReply {
     private Member member;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "feedback_id")
-    private Feedback feedback;
+    @JoinColumn(name = "feedback_member_log_id")
+    private FeedbackMemberLog feedbackMemberLog;
 
     /**
      * FeedbackReply 내용
@@ -71,11 +71,11 @@ public class FeedbackReply {
 
     private Boolean deleted = Boolean.FALSE;
 
-    public static FeedbackReply createFeedbackReply(Post post, Member member, Feedback feedback, String content) {
+    public static FeedbackReply createFeedbackReply(Post post, Member member, FeedbackMemberLog feedbackMemberLog, String content) {
         FeedbackReply feedbackReply = new FeedbackReply();
         feedbackReply.setPost(post);
         feedbackReply.setMember(member);
-        feedbackReply.setFeedback(feedback);
+        feedbackReply.setFeedbackMemberLog(feedbackMemberLog);
         feedbackReply.setContent(content);
         feedbackReply.setLikeCount(0);
         feedbackReply.setFeedbackReplyTime(LocalDateTime.now());
