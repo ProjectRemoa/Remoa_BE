@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
@@ -47,7 +48,8 @@ public class KakaoController {
      */
     // 프론트에서 인가코드 받아오는 url
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = MessageUtils.SUCCESS),
+            @ApiResponse(responseCode = "200", description = "기존 회원 로그인"),
+            @ApiResponse(responseCode = "201", description = "첫 로그인 회원가입"),
             @ApiResponse(responseCode = "400", description = MessageUtils.ERROR,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -59,8 +61,13 @@ public class KakaoController {
         log.info("code = " + code);
         KakaoLoginResponseDto kakaoLoginResponseDto = kakaoService.kakaoLogin(code);
 
+        if(kakaoLoginResponseDto.isSignup()){
+            BaseResponse<KakaoLoginResponseDto> response = new BaseResponse<>(CustomMessage.OK, kakaoLoginResponseDto);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        }
+
         BaseResponse<KakaoLoginResponseDto> response = new BaseResponse<>(CustomMessage.OK, kakaoLoginResponseDto);
-        return ResponseEntity.ok().body(response);
+        return new ResponseEntity<>(response, HttpStatus.OK);
 //        return SuccessResponse.<KakaoLoginResponseDto>builder()
 //                .message(CustomMessage.OK.getMessage())
 //                .detail(CustomMessage.OK.getDetail())

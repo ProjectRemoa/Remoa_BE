@@ -41,6 +41,7 @@ public class KakaoService {
     private final JwtTokenProvider jwtTokenProvider;
 
     public KakaoLoginResponseDto kakaoLogin(String code) {
+        boolean isSignUp = false;
 
         OAuthToken accessToken = getAccessToken(code);
         KakaoProfile kakaoProfile = getKakaoProfile(accessToken);
@@ -53,6 +54,7 @@ public class KakaoService {
         Member member = memberRepository.findByKakaoId(kakaoLoginRequestDto.getKakaoIdentifier()).orElseGet(() -> null);
         if (member == null) {
             log.info("카카오로 회원가입");
+            isSignUp = true;
             member = memberRepository.save(kakaoLoginRequestDto.toEntity());
         }
         String token = jwtTokenProvider.createToken(member.getAccount()); //임의로 만든 account로 토큰 생성.
@@ -65,7 +67,7 @@ public class KakaoService {
 
         updateRefreshToken(member, refreshToken);
 
-        return new KakaoLoginResponseDto(token, refreshToken, member);
+        return new KakaoLoginResponseDto(token, refreshToken, member, isSignUp);
     } // 그냥 회원 가입 할 경우는 로그인을 따로 진행해야 토큰을 주고, 카카오 로그인을 할 경우 처음 등록시에도 토큰을 부여? -> yes
 
     private void updateRefreshToken(Member member, String refreshToken) {

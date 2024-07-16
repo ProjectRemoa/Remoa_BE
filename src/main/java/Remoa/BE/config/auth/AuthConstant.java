@@ -21,7 +21,7 @@ public class AuthConstant {
 
     // GET 메서드에 대한 인증이 필요한 경로
     public static final String[] GET_AUTH_BLACKLIST
-            = {"/follow/{member_id}", "/following", "/follower", "/user", "/user/img",
+            = { "/following", "/follower", "/user", "/user/img",
             "/inquiry", "/inquiry/view", "/user/activity", "/user/scrap", "/user/comment",
             "/user/receive", "/user/feedback", "/user/reference", "/user/comment-feedback"};
 
