@@ -53,6 +53,7 @@ public class PostService {
         return postRepository.findByMember(member);
     }
 
+    @Transactional
     public void deleteByMember(Member myMember){
         postRepository.deletePostByMember(myMember);
     }
