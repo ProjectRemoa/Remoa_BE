@@ -16,7 +16,7 @@ import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE post_member_feedback_log SET deleted = true WHERE post_member_feedback_log_id = ?")
+@SQLDelete(sql = "UPDATE feedback_member_log SET deleted = true WHERE feedback_member_log_id = ?")
 @SQLRestriction("deleted = false") // 검색시 deleted = false 조건을 where 절에 추가
 @NoArgsConstructor
 public class FeedbackMemberLog {

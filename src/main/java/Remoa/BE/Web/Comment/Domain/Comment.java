@@ -2,6 +2,8 @@ package Remoa.BE.Web.Comment.Domain;
 
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Post.Domain.Post;
+import Remoa.BE.exception.CustomMessage;
+import Remoa.BE.exception.response.BaseException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,6 +44,8 @@ public class Comment {
     /**
      * Comment의 내용
      */
+    @Lob
+    @Column(name = "content", length = 300)
     private String content;
 
 
@@ -71,6 +75,9 @@ public class Comment {
 
 
     public static Comment createComment(Post post, Member member, String content, LocalDateTime time) {
+        if(content.length() > 300){
+            throw new BaseException(CustomMessage.INVALID_CONTENT_LENGTH);
+        }
         Comment comment = new Comment();
         comment.setPost(post);
         comment.setMember(member);
@@ -78,5 +85,12 @@ public class Comment {
         comment.setLikeCount(0);
         comment.setCommentedTime(time);
         return comment;
+    }
+
+    public void setContent(String content){
+        if(content.length() > 300){
+            throw new BaseException(CustomMessage.INVALID_CONTENT_LENGTH);
+        }
+        this.content = content;
     }
 }

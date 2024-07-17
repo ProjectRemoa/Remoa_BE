@@ -3,6 +3,8 @@ package Remoa.BE.Web.Comment.Domain;
 import Remoa.BE.Web.CommentFeedback.Domain.CommentFeedback;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Post.Domain.Post;
+import Remoa.BE.exception.CustomMessage;
+import Remoa.BE.exception.response.BaseException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,8 +53,9 @@ public class CommentReply {
     /**
      * CommentReply 내용
      */
+    @Lob
+    @Column(name = "content", length = 300)
     private String content;
-
 
     /**
      * CommentReply 작성된 시간
@@ -74,6 +77,9 @@ public class CommentReply {
     private Boolean deleted = Boolean.FALSE;
 
     public static CommentReply createCommentReply(Post post, Member member, String content, Comment parentComment) {
+        if(content.length() > 300){
+            throw new BaseException(CustomMessage.INVALID_CONTENT_LENGTH);
+        }
         CommentReply commentReply = new CommentReply();
         commentReply.setPost(post);
         commentReply.setMember(member);
@@ -82,6 +88,13 @@ public class CommentReply {
         commentReply.setLikeCount(0);
         commentReply.setCommentRepliedTime(LocalDateTime.now());
         return commentReply;
+    }
+
+    public void setContent(String content){
+        if(content.length() > 300){
+            throw new BaseException(CustomMessage.INVALID_CONTENT_LENGTH);
+        }
+        this.content = content;
     }
 
 }

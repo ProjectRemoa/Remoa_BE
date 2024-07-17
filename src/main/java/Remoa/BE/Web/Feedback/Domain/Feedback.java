@@ -4,6 +4,8 @@ import Remoa.BE.Web.Comment.Domain.CommentReply;
 import Remoa.BE.Web.CommentFeedback.Domain.CommentFeedback;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Post.Domain.Post;
+import Remoa.BE.exception.CustomMessage;
+import Remoa.BE.exception.response.BaseException;
 import jakarta.persistence.CascadeType;
 import lombok.Builder;
 import lombok.Getter;
@@ -49,6 +51,8 @@ public class Feedback {
     /**
      * Feedback의 내용
      */
+    @Lob
+    @Column(name = "content", length = 400)
     private String content;
 
     /**
@@ -64,14 +68,13 @@ public class Feedback {
     private Integer likeCount = 0;
 
 
-
-
-
-
     private Boolean deleted = Boolean.FALSE;
 
 
     public static Feedback createFeedback(Post post, Member member, Integer pageNumber, String content, LocalDateTime time) {
+        if (content.length() > 300) {
+            throw new BaseException(CustomMessage.INVALID_CONTENT_LENGTH);
+        }
         Feedback feedbackObj = new Feedback();
         feedbackObj.setPost(post);
         feedbackObj.setMember(member);
@@ -80,5 +83,12 @@ public class Feedback {
         feedbackObj.setLikeCount(0);
         feedbackObj.setFeedbackTime(time);
         return feedbackObj;
+    }
+
+    public void setContent(String content) {
+        if (content.length() > 300) {
+            throw new BaseException(CustomMessage.INVALID_CONTENT_LENGTH);
+        }
+        this.content = content;
     }
 }

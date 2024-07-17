@@ -166,7 +166,7 @@ public class FeedbackService {
         feedbackOfCommentFeedback.setDeleted(true);
 
         feedbackRepository.delete(feedbackObj);
-        if (feedbackRepository.existsByMemberAndPost(member, post)) { //더이상 해당 포스트에 작성한 피드백 존재하지 않는다면
+        if (!feedbackRepository.existsByMemberAndPost(member, post)) { //더이상 해당 포스트에 작성한 피드백 존재하지 않는다면
             feedbackMemberLogRepository.deleteByMemberAndPost(member, post); // 포스트멤버피드백로그 삭제
         }
     }

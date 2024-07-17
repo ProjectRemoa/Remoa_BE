@@ -3,6 +3,8 @@ package Remoa.BE.Web.Feedback.Domain;
 import Remoa.BE.Web.CommentFeedback.Domain.CommentFeedback;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Post.Domain.Post;
+import Remoa.BE.exception.CustomMessage;
+import Remoa.BE.exception.response.BaseException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -72,6 +74,9 @@ public class FeedbackReply {
     private Boolean deleted = Boolean.FALSE;
 
     public static FeedbackReply createFeedbackReply(Post post, Member member, FeedbackMemberLog feedbackMemberLog, String content) {
+        if (content.length() > 300) {
+            throw new BaseException(CustomMessage.INVALID_CONTENT_LENGTH);
+        }
         FeedbackReply feedbackReply = new FeedbackReply();
         feedbackReply.setPost(post);
         feedbackReply.setMember(member);
@@ -80,5 +85,12 @@ public class FeedbackReply {
         feedbackReply.setLikeCount(0);
         feedbackReply.setFeedbackReplyTime(LocalDateTime.now());
         return feedbackReply;
+    }
+
+    public void setContent(String content) {
+        if (content.length() > 300) {
+            throw new BaseException(CustomMessage.INVALID_CONTENT_LENGTH);
+        }
+        this.content = content;
     }
 }

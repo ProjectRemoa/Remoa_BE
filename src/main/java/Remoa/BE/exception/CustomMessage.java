@@ -50,6 +50,7 @@ public enum CustomMessage {
     FILE_SIZE_OVER(HttpStatus.BAD_REQUEST, "파일 업/다운로드 오류", "파일 사이즈가 최대 허용 크기보다 큽니다."),
     IMAGE_PIXEL_LACK(HttpStatus.BAD_REQUEST, "파일 업/다운로드 오류", "이미지 픽셀이 최소 규격에 미달합니다."),
     INVALID_FILE_LENGTH(HttpStatus.BAD_REQUEST, "파일 길이 초과", "업로드하려는 파일의 길이가 너무 깁니다."),
+    INVALID_CONTENT_LENGTH(HttpStatus.BAD_REQUEST, "댓글 길이 초과", "등록하려는 문자열의 길이가 너무 깁니다."),
     CANNOT_REISSUE_TOKEN(HttpStatus.BAD_REQUEST, "토큰 재발급 실패", "토큰 재발급 실패하였습니다"),
 
 
