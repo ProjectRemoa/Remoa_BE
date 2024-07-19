@@ -117,7 +117,8 @@ public class KakaoService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", "415ea3ee0124fa3538ce37d80adc94c2");
-        params.add("redirect_uri", "http://localhost:3000/login/kakao");
+        //params.add("redirect_uri", "http://localhost:3000/login/kakao");
+        params.add("redirect_uri", "https://d197wa6gufmlpc.cloudfront.net");
         params.add("code", code);
         //params.add("client_secret", client_secret);
 
