@@ -40,10 +40,10 @@ public class KakaoService {
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public KakaoLoginResponseDto kakaoLogin(String code) {
+    public KakaoLoginResponseDto kakaoLogin(String code, String requestUri) {
         boolean isSignUp = false;
 
-        OAuthToken accessToken = getAccessToken(code);
+        OAuthToken accessToken = getAccessToken(code, requestUri);
         KakaoProfile kakaoProfile = getKakaoProfile(accessToken);
 
         log.info("kakaoProfile = {}", kakaoProfile);
@@ -103,7 +103,7 @@ public class KakaoService {
     }
 
     // (1)넘어온 인가 코드를 통해 access_token 발급
-    public OAuthToken getAccessToken(String code) {
+    public OAuthToken getAccessToken(String code, String requestUri) {
         //POST 방식으로 key=value 데이터를 요청
         //Post 요청을 하는 다양한 라이브러리가 있다 Retrofit(안드로이드), OkHttp, RestTempate
         RestTemplate restTemplate = new RestTemplate();
@@ -117,8 +117,13 @@ public class KakaoService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", "415ea3ee0124fa3538ce37d80adc94c2");
-       // params.add("redirect_uri", "https://d197wa6gufmlpc.cloudfront.net/login/kakao");
-        params.add("redirect_uri", "http://localhost:3000/login/kakao");
+        if (requestUri.equals("https://d197wa6gufmlpc.cloudfront.net/login/kakao")) {
+            log.info("request_uri = {}", "https://d197wa6gufmlpc.cloudfront.net/login/kakao");
+            params.add("redirect_uri", "https://d197wa6gufmlpc.cloudfront.net/login/kakao");
+        } else if (requestUri.equals("http://localhost:3000/login/kakao")) {
+            log.info("request_uri = {}", "http://localhost:3000/login/kakao");
+            params.add("redirect_uri", "http://localhost:3000/login/kakao");
+        }
         params.add("code", code);
         //params.add("client_secret", client_secret);
 
