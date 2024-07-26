@@ -15,12 +15,12 @@ import java.util.List;
 
 public interface FeedbackRepository extends JpaRepository<Feedback, Long>, FeedbackRepositoryCustom {
 
-    @Query("select f from Feedback f where f.post = :post")
-    List<Feedback> findFeedbackByPost(Post post);
+    @Query(value = "select * from Feedback f where post_id = :postId", nativeQuery = true)
+    List<Feedback> findFeedbackByPostHard(@Param("postId") Long postId);
 
     @Modifying
-    @Query("delete from Feedback f where f.post = :post")
-    void deleteFeedbackByPost(@Param("post") Post post);
+    @Query(value = "delete from feedback f where post_id = :postId", nativeQuery = true)
+    void deleteFeedbackByPostHard(@Param("postId") Long postId);
 
     Page<Feedback> findByMemberOrderByFeedbackTimeDesc(Pageable pageable, Member member);
 
@@ -47,4 +47,8 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long>, Feedb
             "ORDER BY f.feedbackTime ASC")
     Page<Feedback> findOldestFeedback(Member member, Pageable pageable);
 
+
+    @Modifying
+    @Query(value = "delete from feedback f where member_id = :memberId", nativeQuery = true)
+    void deleteFeedbackByMemberHard(@Param("memberId") Long memberId);
 }

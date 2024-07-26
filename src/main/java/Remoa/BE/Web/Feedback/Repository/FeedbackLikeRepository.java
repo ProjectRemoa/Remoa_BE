@@ -16,6 +16,6 @@ public interface FeedbackLikeRepository extends JpaRepository<FeedbackLike, Long
     Optional<FeedbackLike> findByMemberAndFeedbackMemberLog(Member member, FeedbackMemberLog feedbackMemberLog);
 
     @Modifying
-    @Query("delete from FeedbackLike fl where fl.feedbackMemberLog = :feedbackMemberLog")
-    void deleteByFeedback(@Param("feedbackMemberLog") FeedbackMemberLog feedbackMemberLog);
+    @Query(value = "delete from feedback_like fl where feedback_member_log_id = :feedbackMemberLogId", nativeQuery = true)
+    void deleteByFeedbackHard(@Param("feedbackMemberLogId") Long feedbackMemberLogId);
 }

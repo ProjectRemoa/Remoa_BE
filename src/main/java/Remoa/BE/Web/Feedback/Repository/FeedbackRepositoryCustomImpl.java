@@ -126,11 +126,6 @@ public class FeedbackRepositoryCustomImpl implements FeedbackRepositoryCustom {
                 .getResultList();
     }
 
-    public void deleteFeedbackByMember(Member member) {
-        em.createQuery("delete from Feedback f where f.member = :member")
-                .setParameter("member", member)
-                .executeUpdate();
-    }
 
     public void deleteChildFeedbackByParentFeedback(Feedback feedback){
         em.createQuery("delete from Feedback f where f.parentFeedback = :feedback")

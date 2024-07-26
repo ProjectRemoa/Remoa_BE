@@ -15,10 +15,10 @@ public interface CommentReplyRepository extends JpaRepository<CommentReply, Long
     List<CommentReply> findByCommentOrderByCommentRepliedTimeAsc(Comment comment);
 
     @Modifying
-    @Query("delete from CommentReply cr where cr.comment = :comment")
-    void deleteByComment(@Param("comment") Comment comment);
+    @Query(value = "delete from CommentReply cr where comment_id = :commentId", nativeQuery = true)
+    void deleteByCommentHard(@Param("commentId") Long commentId);
 
     @Modifying
-    @Query("delete from CommentReply cr where cr.member = :member")
-    void deleteByMember(@Param("member") Member member);
+    @Query(value = "delete from comment_reply cr where member_id = :memberId", nativeQuery = true)
+    void deleteByMemberHard(@Param("memberId") Long memberId);
 }

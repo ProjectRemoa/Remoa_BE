@@ -22,16 +22,27 @@ public interface CommentFeedbackRepository extends JpaRepository<CommentFeedback
     Page<CommentFeedback> findByMemberOrderByTimeDesc(Pageable pageable, Member member);
 
     @Modifying
-    @Query("delete from CommentFeedback cf where cf.member = :member")
-    void deleteByMember(@Param("member") Member member);
+    @Query(value = "delete from comment_feedback cf where post_id = :postId", nativeQuery = true)
+    void deleteByPostHard(@Param("postId") Long postId);
 
     @Modifying
-    @Query("delete from CommentFeedback cf where cf.feedback = :feedback")
-    void deleteByFeedback(Feedback feedback);
+    @Query(value = "delete from comment_feedback cf where member_id = :memberId", nativeQuery = true)
+    void deleteByMemberHard(@Param("memberId") Long memberId);
 
     @Modifying
-    @Query("delete from CommentFeedback cf where cf.comment = :comment")
+    @Query(value = "delete from comment_feedback cf where feedback_id = :feedbackId", nativeQuery = true)
+    void deleteByFeedbackHard(@Param("feedbackId") Long feedbackId);
+
+    @Modifying
+    @Query(value = "delete from CommentFeedback cf where cf.feedback = :feedback")
+    void deleteByFeedback(@Param("feedback") Feedback feedback);
+
+    @Modifying
+    @Query(value = "delete from CommentFeedback cf where cf.comment = :comment")
     void deleteByComment(Comment comment);
 
+    @Modifying
+    @Query(value = "delete from Comment_Feedback cf where comment_id = :commentId", nativeQuery = true)
+    void deleteByCommentHard(Long commentId);
 
 }

@@ -36,7 +36,7 @@ public class FeedbackReplyService {
 
     @Transactional
     public void deleteByMember(Member member){
-        feedbackReplyRepository.deleteByMember(member);
+        feedbackReplyRepository.deleteByMemberHard(member.getMemberId());
     }
 
     @Transactional
@@ -50,7 +50,7 @@ public class FeedbackReplyService {
 
     @Transactional
     public void deleteByFeedbackMemberLog(FeedbackMemberLog feedbackMemberLog){
-        feedbackReplyRepository.deleteByFeedbackMemberLog(feedbackMemberLog);
+        feedbackReplyRepository.deleteByFeedbackMemberLogHard(feedbackMemberLog.getFeedbackMemberLogId());
     }
 
 

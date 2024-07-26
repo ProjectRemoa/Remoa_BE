@@ -32,18 +32,23 @@ public class CommentFeedbackService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
+    public void deleteByPost(Post post){
+        commentFeedbackRepository.deleteByPostHard(post.getPostId());
+    }
+
+    @Transactional
     public void deleteByComment(Comment comment){
-        commentFeedbackRepository.deleteByComment(comment);
+        commentFeedbackRepository.deleteByCommentHard(comment.getCommentId());
     }
 
     @Transactional
     public void deleteByFeedback(Feedback feedback){
-        commentFeedbackRepository.deleteByFeedback(feedback);
+        commentFeedbackRepository.deleteByFeedbackHard(feedback.getFeedbackId());
     }
 
     @Transactional
     public void deleteByMember(Member member){
-        commentFeedbackRepository.deleteByMember(member);
+        commentFeedbackRepository.deleteByMemberHard(member.getMemberId());
     }
 
     @Transactional

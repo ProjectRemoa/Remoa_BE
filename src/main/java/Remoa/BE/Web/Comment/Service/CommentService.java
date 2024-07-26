@@ -42,7 +42,7 @@ public class CommentService {
 
     @Transactional
     public void deleteByMember(Member member){
-        commentRepository.deleteCommentByMember(member);
+        commentRepository.deleteCommentByMemberHard(member.getMemberId());
     }
 
     @Transactional
@@ -53,12 +53,12 @@ public class CommentService {
 
     @Transactional
     public void deleteCommentLikeByComment(Comment comment){
-        commentLikeRepository.deleteByComment(comment);
+        commentLikeRepository.deleteByCommentHard(comment.getCommentId());
     }
 
     @Transactional
     public void deleteByPost(Post post){
-        commentRepository.deleteByPost(post);
+        commentRepository.deleteByPostHard(post.getPostId());
     }
 
     public List<Comment> findAllCommentsOfPost(Long postId) {
@@ -66,8 +66,8 @@ public class CommentService {
         return commentRepository.findByPost(post);
     }
 
-    public List<Comment> findCommentsByPost(Post post) {
-        return commentRepository.findByPost(post);
+    public List<Comment> findCommentsByPostHard(Post post) {
+        return commentRepository.findByPostHard(post.getPostId());
     }
 
     @Transactional

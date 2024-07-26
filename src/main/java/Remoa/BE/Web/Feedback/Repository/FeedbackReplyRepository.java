@@ -17,10 +17,10 @@ public interface FeedbackReplyRepository extends JpaRepository<FeedbackReply, Lo
 
 
     @Modifying
-    @Query("delete from FeedbackReply fr where fr.member = :member")
-    void deleteByMember(@Param("member") Member member);
+    @Query(value = "delete from feedback_reply fr where fr.member_id = :memberId", nativeQuery = true)
+    void deleteByMemberHard(@Param("memberId") Long memberId);
 
     @Modifying
-    @Query("delete from FeedbackReply fr where fr.feedbackMemberLog = :feedbackMemberLog")
-    void deleteByFeedbackMemberLog(@Param("feedbackMemberLog")FeedbackMemberLog feedbackMemberLog);
+    @Query(value = "delete from feedback_reply fr where fr.feedback_member_log_id = :feedbackMemberLogId", nativeQuery = true)
+    void deleteByFeedbackMemberLogHard(@Param("feedbackMemberLogId")Long feedbackMemberLogId);
 }

@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.swing.plaf.SpinnerUI;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -49,16 +50,19 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
 
 
-    public List<Post> findPostsByMember(Member member) {
-        return postRepository.findByMember(member);
+    public List<Post> findPostsByMemberHard(Member member) {
+        return postRepository.findByMemberHard(member.getMemberId());
     }
 
     @Transactional
-    public void deleteByMember(Member myMember){
-        postRepository.deletePostByMember(myMember);
+    public void deleteByMember(Member myMember) {
+        postRepository.deletePostByMemberHard(myMember.getMemberId());
     }
 
-
+    @Transactional
+    public void deletePostScrapByPost(Post post) {
+        postScrapRepository.deleteByPostHard(post.getPostId());
+    }
 
     public Post findOne(Long postId) {
         Optional<Post> post = postRepository.findOne(postId);

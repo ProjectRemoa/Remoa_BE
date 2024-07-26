@@ -129,11 +129,6 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                 .getResultList();
     }
 
-    public void deleteCommentByMember(Member member) {
-        em.createQuery("delete from Comment c where c.member = :member")
-                .setParameter("member", member)
-                .executeUpdate();
-    }
 
     public void deleteChildCommentByParentFeedback(Comment comment) {
         em.createQuery("delete from Comment c where c.parentComment = :comment")

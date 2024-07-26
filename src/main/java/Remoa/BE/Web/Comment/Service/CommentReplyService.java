@@ -37,12 +37,12 @@ public class CommentReplyService {
 
     @Transactional
     public void deleteByMember(Member member){
-        commentReplyRepository.deleteByMember(member);
+        commentReplyRepository.deleteByMemberHard(member.getMemberId());
     }
 
     @Transactional
     public void deleteByComment(Comment comment){
-        commentReplyRepository.deleteByComment(comment);
+        commentReplyRepository.deleteByCommentHard(comment.getCommentId());
     }
 
 

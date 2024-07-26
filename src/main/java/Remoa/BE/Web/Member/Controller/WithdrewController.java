@@ -52,6 +52,7 @@ public class WithdrewController {
     private final CommentFeedbackService commentFeedbackService;
     private final FileService fileService;
 
+
     /**
      * PathVariable을 이용한 회원 탈퇴 uri.
      * 로그인 된 사용자인지, 해당 사용자의 탈퇴 요청이 맞는지 확인 후 탈퇴 처리.
@@ -72,24 +73,27 @@ public class WithdrewController {
         Long memberId = memberDetails.getMemberId();
         Member myMember = memberService.findOne(memberId);
 
-        List<Post> postsByMember = postService.findPostsByMember(myMember);
+        List<Post> postsByMember = postService.findPostsByMemberHard(myMember);
         postsByMember.forEach(post -> {
-            List<Comment> commentsByPost = commentService.findCommentsByPost(post); //코멘트 조회
+            List<Comment> commentsByPost = commentService.findCommentsByPostHard(post); //코멘트 조회
             commentsByPost.forEach(commentReplyService::deleteByComment); //코멘트 대댓글 삭제
             commentsByPost.forEach(commentService::deleteCommentLikeByComment); // 코멘트 좋아요 삭제
             commentsByPost.forEach(commentFeedbackService::deleteByComment); //코멘트-피드백 삭제
             commentService.deleteByPost(post); // 코멘트 삭제
 
-            List<FeedbackMemberLog> feedbackMemberLogByPost = feedbackService.findFeedbackMemberLogByPost(post);//피드백로그 조회
+            List<FeedbackMemberLog> feedbackMemberLogByPost = feedbackService.findFeedbackMemberLogByPostHard(post);//피드백로그 조회
             feedbackMemberLogByPost.forEach(feedbackReplyService::deleteByFeedbackMemberLog); //피드백 대댓글 삭제
             feedbackMemberLogByPost.forEach(feedbackService::deleteFeedbackLikeByFeedBack); //피드백 좋아요
             feedbackService.deleteFeedbackLogByPost(post);//피드백 로그 삭제
 
-            List<Feedback> feedbackByPost = feedbackService.findFeedbackByPost(post); //피드백 조회
+            List<Feedback> feedbackByPost = feedbackService.findFeedbackByPostHard(post); //피드백 조회
             feedbackByPost.forEach(commentFeedbackService::deleteByFeedback); //코멘트-피드백 삭제
             feedbackService.deleteFeedbackByPost(post); //피드백 삭제
 
+
+            commentFeedbackService.deleteByPost(post); //코멘트 피드백 삭제 by Post
             fileService.deleteByPost(post);
+            postService.deletePostScrapByPost(post);
         });
         postService.deleteByMember(myMember); //해당 포스트 삭제
 

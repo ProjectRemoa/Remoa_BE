@@ -10,15 +10,19 @@ import Remoa.BE.Web.Feedback.Domain.QFeedback;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Member.Domain.QMember;
 import Remoa.BE.Web.Post.Domain.Category;
+import Remoa.BE.Web.Post.Domain.Post;
 import Remoa.BE.Web.Post.Domain.QPost;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -28,6 +32,8 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class CommentFeedbackCustomRepositoryImpl implements CommentFeedbackCustomRepository{
+
+
 
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -79,6 +85,14 @@ public class CommentFeedbackCustomRepositoryImpl implements CommentFeedbackCusto
         // Convert to Page
         return new PageImpl<>(fetch, pageable, total);
     }
+
+    private final JdbcTemplate jdbcTemplate;
+
+//    @Override
+//    public void deleteByPost(Post post) {
+//        String sql = "DELETE FROM Comment_Feedback cf WHERE post_id = ?";
+//        jdbcTemplate.update(sql, post.getPostId());
+//    }
 
     @Override
     public Optional<CommentFeedback> findByMemberOrderByTime(Member member) {

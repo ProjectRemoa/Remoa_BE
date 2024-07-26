@@ -5,6 +5,7 @@ import Remoa.BE.Web.CommentFeedback.Domain.CommentFeedback;
 import Remoa.BE.Web.Feedback.Domain.Feedback;
 import Remoa.BE.Web.Member.Domain.Member;
 import Remoa.BE.Web.Post.Domain.Category;
+import Remoa.BE.Web.Post.Domain.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,6 @@ public interface CommentFeedbackCustomRepository  {
 
     Page<CommentFeedback> findRecentReceivedCommentFeedback(Member member, Pageable pageable, Category category);
     Page<CommentFeedback> findMyCommentOrFeedback(Member member, Pageable pageable, String sort);
+
+
 }

@@ -13,15 +13,16 @@ import java.util.Optional;
 
 public interface FeedbackMemberLogRepository extends JpaRepository<FeedbackMemberLog, Long> {
 
-    List<FeedbackMemberLog> findByPost(Post post);
+    @Query(value = "select * from feedback_member_log where post_id = :postId", nativeQuery = true)
+    List<FeedbackMemberLog> findByPostHard(@Param("postId") Long postId);
 
     @Modifying
-    @Query("delete from FeedbackMemberLog fml where fml.post = :post")
-    void deleteFeedbackLogByPost(@Param("post") Post post);
+    @Query(value = "delete from feedback_member_log fml where post_id = :postId", nativeQuery = true)
+    void deleteFeedbackLogByPostHard(@Param("postId") Long postId);
 
     @Modifying
-    @Query("delete from FeedbackMemberLog fml where fml.member = :member")
-    void deleteByMember(@Param("member") Member member);
+    @Query(value = "delete from feedback_member_log fml where member_id = :memberId", nativeQuery = true)
+    void deleteByMemberHard(@Param("memberId") Long memberId);
 
     boolean existsByMemberAndPost(Member member, Post post);
 

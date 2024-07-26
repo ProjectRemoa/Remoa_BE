@@ -46,12 +46,12 @@ public class FeedbackService {
 
     @Transactional
     public void deleteFeedbackByMember(Member member){
-        feedbackRepository.deleteFeedbackByMember(member);
+        feedbackRepository.deleteFeedbackByMemberHard(member.getMemberId());
     }
 
     @Transactional
     public void deleteFeedbackLogByMember(Member member){
-        feedbackMemberLogRepository.deleteByMember(member);
+        feedbackMemberLogRepository.deleteByMemberHard(member.getMemberId());
     }
 
     @Transactional
@@ -62,26 +62,26 @@ public class FeedbackService {
 
     @Transactional
     public void deleteFeedbackByPost(Post post){
-        feedbackRepository.deleteFeedbackByPost(post);
+        feedbackRepository.deleteFeedbackByPostHard(post.getPostId());
     }
 
     @Transactional
     public void deleteFeedbackLogByPost(Post post){
-        feedbackMemberLogRepository.deleteFeedbackLogByPost(post);
+        feedbackMemberLogRepository.deleteFeedbackLogByPostHard(post.getPostId());
     }
 
     @Transactional
     public void deleteFeedbackLikeByFeedBack(FeedbackMemberLog feedbackMemberLog){
-        feedbackLikeRepository.deleteByFeedback(feedbackMemberLog);
+        feedbackLikeRepository.deleteByFeedbackHard(feedbackMemberLog.getFeedbackMemberLogId());
     }
 
     @Transactional
-    public List<Feedback> findFeedbackByPost(Post post){
-        return feedbackRepository.findFeedbackByPost(post);
+    public List<Feedback> findFeedbackByPostHard(Post post){
+        return feedbackRepository.findFeedbackByPostHard(post.getPostId());
     }
 
-    public List<FeedbackMemberLog> findFeedbackMemberLogByPost(Post post){
-        return feedbackMemberLogRepository.findByPost(post);
+    public List<FeedbackMemberLog> findFeedbackMemberLogByPostHard(Post post){
+        return feedbackMemberLogRepository.findByPostHard(post.getPostId());
     }
 
     @Transactional

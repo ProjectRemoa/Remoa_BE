@@ -27,7 +27,7 @@ public interface CommentRepositoryCustom {
     void updateComment(Comment newComment);
     void deleteComment(Comment comment);
     List<Comment> findAllByMember(Member member);
-    void deleteCommentByMember(Member member);
+
     void deleteChildCommentByParentFeedback(Comment comment);
 
     Page<Comment> findMyComment(Member member, Pageable pageable, String sort);

@@ -39,7 +39,7 @@ public interface FeedbackRepositoryCustom {
 
     List<Feedback> findAllByMember(Member member);
 
-    void deleteFeedbackByMember(Member member);
+
 
     void deleteChildFeedbackByParentFeedback(Feedback feedback);
 
