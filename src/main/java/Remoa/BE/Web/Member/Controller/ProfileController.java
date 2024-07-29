@@ -20,11 +20,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -52,6 +54,7 @@ public class ProfileController {
     private static final long PROFILE_IMG_MAX_SIZE = 2097152L;
     private static final int PROFILE_IMG_MIN_WIDTH_PIXEL = 110;
     private static final int PROFILE_IMG_MIN_HEIGHT_PIXEL = 110;
+    private final RestTemplate restTemplate;
 
     // 프로필 수정 범위 : 닉네임(중복확인), 핸드폰번호, 대학교, 한줄소개
     @ApiResponses(value = {
@@ -79,6 +82,36 @@ public class ProfileController {
         return ResponseEntity.ok(response);
         //      return successResponse(CustomMessage.OK, resUserInfoDto);
     }
+
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "대학교 데이터 조회 성공"),
+            @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/university")
+    @Operation(summary = "대학교 찾기 API", description = "전체 대학교 데이터 OPEN API")
+    public ResponseEntity<?> getUniversities(@AuthenticationPrincipal MemberDetails memberDetails) {
+        log.info("EndPoint GET /university");
+
+        Long memberId = memberDetails.getMemberId();
+        Member myMember = memberService.findOne(memberId);
+        log.info(myMember.getNickname());
+
+        String apiKey = "1519ec0b6437aa464a3737f919af3ac1";
+        String url = "http://www.career.go.kr/cnet/openapi/getOpenApi?apiKey=" + apiKey +
+                "&svcType=api&svcCode=SCHOOL&contentType=json&gubun=univ_list&thisPage=1&perPage=500";
+
+        try {
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+            return ResponseEntity.ok(response.getBody());
+        } catch (Exception e) {
+            log.error("Error fetching university data", e);
+            throw new BaseException(CustomMessage.SERVER_ERROR);
+        }
+    }
+
+
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인한 사용자의 프로필 정보 수정 성공"),
