@@ -67,7 +67,7 @@ public class FeedbackReply {
     private LocalDateTime feedbackReplyTime;
 
 
-    @OneToMany(mappedBy = "feedbackReply", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "feedbackReply", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<FeedbackReplyLike> feedbackReplyLikes;
 

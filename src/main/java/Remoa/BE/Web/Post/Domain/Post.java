@@ -132,7 +132,7 @@ public class Post {
     /**
      * Post에서 쓰인 files
      */
-    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL, fetch = LAZY)
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.REMOVE, fetch = LAZY)
     private List<UploadFile> uploadFiles;
 
     /**

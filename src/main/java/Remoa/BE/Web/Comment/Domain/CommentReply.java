@@ -70,7 +70,7 @@ public class CommentReply {
     private Integer likeCount = 0;
 
 
-    @OneToMany(mappedBy = "commentReply", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "commentReply", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
 //    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<CommentReplyLike> commentReplyLikes;
 
