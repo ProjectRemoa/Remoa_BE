@@ -23,7 +23,7 @@ public class AuthConstant {
     public static final String[] GET_AUTH_BLACKLIST
             = { "/following", "/follower", "/user", "/user/img",
             "/inquiry", "/inquiry/view", "/user/activity", "/user/scrap", "/user/comment",
-            "/user/receive", "/user/feedback", "/user/reference", "/user/comment-feedback"};
+            "/user/receive", "/user/feedback", "/user/reference", "/user/comment-feedback", "/university"};
 
     // POST 메서드에 대한 인증이 필요한 경로
     public static final String[] POST_AUTH_BLACKLIST

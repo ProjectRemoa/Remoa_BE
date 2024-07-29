@@ -86,12 +86,14 @@ public class ProfileController {
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "대학교 데이터 조회 성공"),
-            @ApiResponse(responseCode = "401", description = MessageUtils.UNAUTHORIZED,
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/university")
     @Operation(summary = "대학교 찾기 API", description = "전체 대학교 데이터 OPEN API")
-    public ResponseEntity<?> getUniversities(@AuthenticationPrincipal MemberDetails memberDetails) {
+    public ResponseEntity<BaseResponse<Map>> getUniversities(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @RequestParam String searchSchulNm) {
         log.info("EndPoint GET /university");
 
         Long memberId = memberDetails.getMemberId();
@@ -100,16 +102,19 @@ public class ProfileController {
 
         String apiKey = "1519ec0b6437aa464a3737f919af3ac1";
         String url = "http://www.career.go.kr/cnet/openapi/getOpenApi?apiKey=" + apiKey +
-                "&svcType=api&svcCode=SCHOOL&contentType=json&gubun=univ_list&thisPage=1&perPage=500";
+                "&svcType=api&svcCode=SCHOOL&contentType=json&gubun=univ_list&thisPage=1&perPage=500" +
+                "&searchSchulNm=" + searchSchulNm;
 
         try {
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-            return ResponseEntity.ok(response.getBody());
+            BaseResponse<Map> baseResponse = new BaseResponse<>(CustomMessage.OK, response.getBody());
+            return ResponseEntity.ok(baseResponse);
         } catch (Exception e) {
             log.error("Error fetching university data", e);
             throw new BaseException(CustomMessage.SERVER_ERROR);
         }
     }
+
 
 
 
