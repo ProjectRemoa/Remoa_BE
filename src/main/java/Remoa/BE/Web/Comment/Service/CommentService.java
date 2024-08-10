@@ -109,7 +109,7 @@ public class CommentService {
      */
     @Transactional
     public Comment registerComment(Member member, String content, Long postId) {
-
+        validateContent(content);
         LocalDateTime time = LocalDateTime.now();
         Post post = postRepository.findById(postId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
 
@@ -125,8 +125,15 @@ public class CommentService {
     /**
      * 코멘트 수정
      */
+
+    private void validateContent(String content){
+        if(content == null || content.isEmpty()){
+            throw new BaseException(CustomMessage.EMPTY_CONTENT);
+        }
+    }
     @Transactional
     public void modifyComment(String comment, Long commentId) {
+        validateContent(comment);
         Comment commentObj = findOne(commentId);
         commentObj.setContent(comment);
 

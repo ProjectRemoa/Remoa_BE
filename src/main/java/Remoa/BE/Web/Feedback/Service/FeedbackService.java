@@ -119,9 +119,15 @@ public class FeedbackService {
                 .orElseThrow(() -> new BaseException(CustomMessage.POST_MEMBER_FEEDBACK_NOT_EXIST));
     }
 
+    private void validateContent(String content){
+        if(content == null || content.isEmpty()){
+            throw new BaseException(CustomMessage.EMPTY_CONTENT);
+        }
+    }
+
     @Transactional
     public void registerFeedback(Member member, String content, Long postId, Integer pageNumber) {
-
+        validateContent(content);
         Post post = postRepository.findById(postId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
 
         if (feedbackRepository.existsByMemberAndPostAndPageNumber(member, post, pageNumber)) {
@@ -143,6 +149,7 @@ public class FeedbackService {
 
     @Transactional
     public void modifyFeedback(Member member, Post post, String content, Long feedbackId) {
+        validateContent(content);
         Feedback feedbackObj = findOne(feedbackId);
         if (!Objects.equals(feedbackObj.getMember().getMemberId(), member.getMemberId())) { // 자신이 적은 피드백 여부 확인
             throw new BaseException(CustomMessage.CAN_NOT_ACCESS);

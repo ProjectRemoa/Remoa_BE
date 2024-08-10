@@ -36,7 +36,7 @@ public class ResCommentFeedbackDto {
     @Schema(description = "좋아요 수", example = "0")
     private Integer likeCount;
 
-    @Schema(description = "피드백인지 여부", example = "false")
-    private Boolean isFeedback;
+    @Schema(description = "코멘트인지 여부", example = "false")
+    private Boolean isComment;
 
 }

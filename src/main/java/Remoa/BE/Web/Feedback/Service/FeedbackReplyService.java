@@ -41,11 +41,18 @@ public class FeedbackReplyService {
 
     @Transactional
     public FeedbackReply registerFeedbackReply(Member member, Long postId, Long feedbackMemberLogId, String content) {
+        validateContent(content);
         Post post = postRepository.findById(postId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));;
         FeedbackMemberLog feedbackMemberLog = feedbackMemberLogRepository.findById(feedbackMemberLogId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
         FeedbackReply feedbackReply = FeedbackReply.createFeedbackReply(post, member, feedbackMemberLog, content);
         feedbackReplyRepository.save(feedbackReply);
         return feedbackReply;
+    }
+
+    private void validateContent(String content){
+        if(content == null || content.isEmpty()){
+            throw new BaseException(CustomMessage.EMPTY_CONTENT);
+        }
     }
 
     @Transactional
@@ -64,10 +71,11 @@ public class FeedbackReplyService {
     }
 
     @Transactional
-    public void modifyFeedbackReply(String feedbackReplyContent, Long feedbackReplyId) {
+    public void modifyFeedbackReply(String content, Long feedbackReplyId) {
+        validateContent(content);
         FeedbackReply feedbackReply = feedbackReplyRepository.findById(feedbackReplyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feedback reply not found"));
-        feedbackReply.setContent(feedbackReplyContent); // 변경 감지
+        feedbackReply.setContent(content); // 변경 감지
     }
 
     @Transactional

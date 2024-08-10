@@ -457,7 +457,7 @@ public class MyActivityController {
                         null))
                 .content(commentFeedback.getComment().getContent())
                 .likeCount(commentFeedback.getComment().getLikeCount())
-                .isFeedback(false)
+                .isComment(true)
                 .build();
     }
 
@@ -473,7 +473,7 @@ public class MyActivityController {
                         null))
                 .content(commentFeedback.getFeedback().getContent())
                 .likeCount(commentFeedback.getFeedback().getLikeCount())
-                .isFeedback(true)
+                .isComment(false)
                 .build();
 
     }

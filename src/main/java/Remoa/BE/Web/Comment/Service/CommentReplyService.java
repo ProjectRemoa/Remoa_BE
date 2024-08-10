@@ -36,20 +36,26 @@ public class CommentReplyService {
     }
 
     @Transactional
-    public void deleteByMember(Member member){
+    public void deleteByMember(Member member) {
         commentReplyRepository.deleteByMemberHard(member.getMemberId());
     }
 
     @Transactional
-    public void deleteByComment(Comment comment){
+    public void deleteByComment(Comment comment) {
         commentReplyRepository.deleteByCommentHard(comment.getCommentId());
     }
 
+    private void validateContent(String content) {
+        if (content == null || content.isEmpty()) {
+            throw new BaseException(CustomMessage.EMPTY_CONTENT);
+        }
+    }
 
     @Transactional
     public CommentReply registerCommentReply(Member member, String content, Long postId, Long commentId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));;
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));;
+        validateContent(content);
+        Post post = postRepository.findById(postId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new BaseException(CustomMessage.NO_ID));
 
         CommentReply commentReply = CommentReply.createCommentReply(post, member, content, comment);
         commentReplyRepository.save(commentReply);
@@ -62,10 +68,11 @@ public class CommentReplyService {
     }
 
     @Transactional
-    public void modifyCommentReply(String commentReplyContent, Long commentReplyId) {
+    public void modifyCommentReply(String content, Long commentReplyId) {
+        validateContent(content);
         CommentReply commentReply = commentReplyRepository.findById(commentReplyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Comment reply not found"));
-        commentReply.setContent(commentReplyContent); // 변경 감지
+        commentReply.setContent(content); // 변경 감지
     }
 
     @Transactional
