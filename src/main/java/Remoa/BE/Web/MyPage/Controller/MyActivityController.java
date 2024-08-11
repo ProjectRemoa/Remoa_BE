@@ -154,6 +154,7 @@ public class MyActivityController {
          * 조회한 가장 최근에 작성한 댓글들을 dto로 mapping
          * 하나의 게시물에 여러 코멘트, 피드백 모두 단 경우 하나의 최신 하나만 보여주도록 구현
          */
+
         List<ResCommentFeedbackDto> contents = commentOrFeedback.stream()
                 .map(commentFeedback -> {
                     ResCommentFeedbackDto map = null;
@@ -473,7 +474,7 @@ public class MyActivityController {
                         null))
                 .content(commentFeedback.getFeedback().getContent())
                 .likeCount(commentFeedback.getFeedback().getLikeCount())
-                .isComment(false)
+                .isComment(commentService.existsByPost(commentFeedback.getPost()))
                 .build();
 
     }

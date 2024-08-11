@@ -51,6 +51,10 @@ public class CommentService {
         return comment.getCommentId();
     }
 
+    public boolean existsByPost(Post post){
+        return commentRepository.existsByPost(post);
+    }
+
     @Transactional
     public void deleteCommentLikeByComment(Comment comment){
         commentLikeRepository.deleteByCommentHard(comment.getCommentId());
