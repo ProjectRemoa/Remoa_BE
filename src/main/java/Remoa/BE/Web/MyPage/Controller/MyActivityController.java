@@ -474,7 +474,7 @@ public class MyActivityController {
                         null))
                 .content(commentFeedback.getFeedback().getContent())
                 .likeCount(commentFeedback.getFeedback().getLikeCount())
-                .isComment(commentService.existsByPost(commentFeedback.getPost()))
+                .isComment(commentService.existsMyComment(commentFeedback.getPost(), commentFeedback.getMember()))
                 .build();
 
     }

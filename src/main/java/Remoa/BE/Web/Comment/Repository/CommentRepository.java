@@ -25,7 +25,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     Page<Comment> findByMemberOrderByCommentedTimeDesc(Pageable pageable, Member member);
 
-    boolean existsByPost(Post post);
+    boolean existsByPostAndMember(Post post, Member member);
 
     @Query("SELECT c FROM Comment c " +
             "INNER JOIN FETCH c.post p " +

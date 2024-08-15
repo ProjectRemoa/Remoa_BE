@@ -51,8 +51,8 @@ public class CommentService {
         return comment.getCommentId();
     }
 
-    public boolean existsByPost(Post post){
-        return commentRepository.existsByPost(post);
+    public boolean existsMyComment(Post post, Member member){
+        return commentRepository.existsByPostAndMember(post, member);
     }
 
     @Transactional
