@@ -88,14 +88,23 @@ public class FollowController {
     })
     @GetMapping("/follow/{member_id}")
     @Operation(summary = "팔로워 및 팔로잉 조회 Test completed", description = "특정 회원의 팔로워 및 팔로잉 수를 조회합니다.")
-    public ResponseEntity<BaseResponse<ResFollowerAndFollowingDto>> showFollowers(@PathVariable("member_id") Long memberId) {
+    public ResponseEntity<BaseResponse<ResFollowerAndFollowingDto>> showFollowers(@AuthenticationPrincipal MemberDetails memberDetails,
+                                                                                  @PathVariable("member_id") Long memberId) {
         log.info("EndPoint Get /follow/{member_id}");
+
+        Member myMember = null;
+
+        if (memberDetails != null) {
+            Long myMemberId = memberDetails.getMemberId();
+            myMember = memberService.findOne(myMemberId);
+        }
 
         Member member = memberService.findOne(memberId);
         List<Integer> count = followService.followerAndFollowing(member);
         ResFollowerAndFollowingDto result = ResFollowerAndFollowingDto.builder()
                 .follower(count.get(0))
                 .following(count.get(1))
+                .isFollow(myMember != null ? followService.isMyMemberFollowMember(myMember, member) : null)
                 .build();
 
         BaseResponse<ResFollowerAndFollowingDto> response = new BaseResponse<>(CustomMessage.OK, result);

@@ -14,4 +14,6 @@ public class ResFollowerAndFollowingDto {
     private Integer follower;
 
     private Integer following;
+
+    Boolean isFollow;
 }
